@@ -67,7 +67,8 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
+/* The page itself never scrolls; .app is the scroll box. This also works inside embeds that block page scrolling (itch.io). */
+html, body { height: 100%; overflow: hidden; }
 html { background: var(--night); }
 body {
   background: var(--night);
@@ -83,10 +84,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 button:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 .num { font-variant-numeric: tabular-nums; }
 
-.app { max-width: 480px; margin: 0 auto; min-height: 100%; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+.app { max-width: 480px; margin: 0 auto; height: 100%; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 
 /* ---------- header ---------- */
-.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--night); padding-block: 10px 8px; margin-inline: -4px; padding-inline: 4px; }
+.app::-webkit-scrollbar { display: none; }
+.top { position: sticky; top: 0; z-index: 5; background: var(--night); padding-block: 10px 8px; margin-inline: -4px; padding-inline: 4px; }
 .top-row { display: flex; align-items: center; gap: 10px; }
 .brand { font-family: var(--font-display); font-size: 15px; letter-spacing: .02em; color: var(--muted); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .brand b { color: var(--cream); font-weight: 400; }
@@ -1283,7 +1285,7 @@ function relocate() {
   sfx.chime(); setTimeout(sfx.chime, 400); buzz([20, 60, 20, 60, 20]);
   setTimeout(() => { cover.style.transition = "opacity .5s"; cover.style.opacity = "0"; setTimeout(() => cover.remove(), 500); }, 2200);
   save(); renderHeader(); buildList();
-  window.scrollTo(0, 0);
+  $("app").scrollTo(0, 0);
 }
 
 /* ================= shop ================= */
