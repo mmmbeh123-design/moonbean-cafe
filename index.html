@@ -1456,7 +1456,7 @@ function drawEvent(full) {
   }
 }
 function renderDecor() {
-  $("pumpkins").hidden = !S.decor.harvest;
+  $("pumpkins").toggleAttribute("hidden", !S.decor.harvest); // SVG elements have no .hidden property
   document.querySelector(".scene").classList.toggle("decor", !!S.decor.harvest);
 }
 
@@ -1572,7 +1572,7 @@ function openSheet(kind, extra) {
       ${pt.owner ? `<h4>Your playtest</h4><button class="btn alt" id="ptResults">See what players shared</button>` : ""}
       <h4>Progress</h4>
       <button class="btn alt" id="resetOpen">Reset progress…</button>
-      <p class="tiny" style="margin-top:12px">Moonbean Café prototype · progress saves on this device.</p>`;
+      <p class="tiny" style="margin-top:12px">Moonbean Café · progress saves on this device · <a href="https://mmmbeh123-design.github.io/moonbean-cafe/privacy.html" target="_blank" rel="noopener" style="color:var(--sky)">Privacy policy</a></p>`;
   } else if (kind === "shop") {
     const left = UPGRADES.filter((u) => !hasUpg(u.id) && (u.kind !== "recipe" || S.st[u.r].lvl > 0));
     const owned = S.upg.length;
