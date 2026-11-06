@@ -1,0 +1,1903 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moonbean Caf&eacute;</title>
+<meta name="description" content="A cozy idle game: run a caf&eacute; staffed by cats.">
+<meta name="theme-color" content="#1b1630">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Moonbean">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body><meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Nunito:wght@500;700;800;900&display=swap">
+<style>
+/* Layout: one portrait column, sticky header, café window scene, scrolling menu of recipe cards, fixed tab bar of pop-up sheets.
+   Colors come from the café theme the player picks (data-skin on the root), not from the viewer's light/dark setting. */
+:root {
+  /* Midnight Plum (default) */
+  --night: #1b1630; --night-2: #261f42; --night-3: #342a58; --line: #43386c;
+  --lantern: #ffb547; --lantern-deep: #e98a1c; --mint: #7fe0bd; --mint-deep: #4fc296; --rose: #ff8fa8; --sky: #9fb4ff; --star: #ffe08a;
+  --cream: #f7eddc; --muted: #a99fc8; --ink: #2a1a07; --on-mint: #0d2b20; --on-rose: #3a0f1d;
+  --sky-top: #2c2560; --sky-bot: #4a3570; --wood: #6b4f36; --wood-dark: #4a3424; --wood-light: #8a6a4a;
+  --track-shadow: 0 1px 2px rgba(0,0,0,.55);
+  --font-display: "Bagel Fat One", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r: 18px;
+  color-scheme: dark;
+}
+:root[data-skin="espresso"] {
+  --night: #1d1511; --night-2: #2b1f18; --night-3: #3b2b21; --line: #503b2d;
+  --lantern: #f2b65c; --lantern-deep: #c98a2e; --mint: #a6d9a0; --mint-deep: #78b872; --rose: #f39c86; --sky: #e6c38f; --star: #ffd98a;
+  --cream: #f6ead8; --muted: #b9a48f; --ink: #2a1a07; --on-mint: #17301a; --on-rose: #3b140b;
+  --sky-top: #182338; --sky-bot: #33405e; --wood: #4b3122; --wood-dark: #2e1d13; --wood-light: #6e4a33;
+  --track-shadow: 0 1px 2px rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+:root[data-skin="matcha"] {
+  --night: #14201a; --night-2: #1e2d25; --night-3: #2a3d32; --line: #3a5242;
+  --lantern: #f6c35e; --lantern-deep: #d29a2c; --mint: #b4e38a; --mint-deep: #86c45c; --rose: #ffa7a0; --sky: #9fd8ff; --star: #fff0a0;
+  --cream: #eef5e6; --muted: #9fb7a6; --ink: #2a1a07; --on-mint: #1c3010; --on-rose: #3b1210;
+  --sky-top: #1d3a4a; --sky-bot: #4d6a5c; --wood: #5d4632; --wood-dark: #3c2c1f; --wood-light: #7d6248;
+  --track-shadow: 0 1px 2px rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+:root[data-skin="sakura"] {
+  --night: #fbeef0; --night-2: #ffffff; --night-3: #f6dde2; --line: #ecc7cf;
+  --lantern: #f3a33f; --lantern-deep: #cd7d1c; --mint: #6fcfa6; --mint-deep: #45b087; --rose: #e45f80; --sky: #5d7ce0; --star: #d98a00;
+  --cream: #3d2430; --muted: #96707d; --ink: #2a1a07; --on-mint: #0d2b20; --on-rose: #ffffff;
+  --sky-top: #f39bb0; --sky-bot: #ffd2a6; --wood: #b07c5a; --wood-dark: #8a5a3e; --wood-light: #cf9f7d;
+  --track-shadow: none;
+  color-scheme: light;
+}
+:root[data-skin="latte"] {
+  --night: #f4ece2; --night-2: #fffaf3; --night-3: #eadccb; --line: #dccab4;
+  --lantern: #ea9b2f; --lantern-deep: #c27716; --mint: #6cc79c; --mint-deep: #46a87a; --rose: #d9667a; --sky: #4f74d6; --star: #c98200;
+  --cream: #3a2a1e; --muted: #8f7a66; --ink: #2a1a07; --on-mint: #0d2b20; --on-rose: #ffffff;
+  --sky-top: #7fc0ee; --sky-bot: #d4ecfa; --wood: #a8784f; --wood-dark: #7f5636; --wood-light: #c99b72;
+  --track-shadow: none;
+  color-scheme: light;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+html { background: var(--night); }
+body {
+  background: var(--night);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.35;
+  overscroll-behavior-y: none;
+  user-select: none; -webkit-user-select: none;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--night); }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
+button:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.app { max-width: 480px; margin: 0 auto; min-height: 100%; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+
+/* ---------- header ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--night); padding-block: 10px 8px; margin-inline: -4px; padding-inline: 4px; }
+.top-row { display: flex; align-items: center; gap: 10px; }
+.brand { font-family: var(--font-display); font-size: 15px; letter-spacing: .02em; color: var(--muted); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand b { color: var(--cream); font-weight: 400; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: var(--night-3); font-weight: 800; font-size: 13px; }
+.chip.star { color: var(--star); }
+.iconbtn { width: 36px; height: 36px; border-radius: 50%; background: var(--night-3); display: grid; place-items: center; color: var(--cream); flex: none; }
+.iconbtn svg { width: 20px; height: 20px; }
+.bank { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+.coins { font-family: var(--font-display); font-size: 38px; line-height: 1; color: var(--lantern); display: flex; align-items: center; gap: 8px; }
+.coin { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffe3a3, #ffb547 55%, #e98a1c); box-shadow: inset 0 -2px 0 rgba(0,0,0,.2); flex: none; position: relative; }
+.coin::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; border: 2px solid rgba(120,60,0,.35); }
+.coin.sm { width: 14px; height: 14px; }
+.coin.sm::after { inset: 3px; border-width: 1.5px; }
+.rate { color: var(--muted); font-weight: 800; font-size: 14px; }
+.rate b { color: var(--mint-deep); }
+:root:not([data-skin="sakura"]):not([data-skin="latte"]) .rate b { color: var(--mint); }
+.boosts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.boost { font-size: 12px; font-weight: 900; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--sky) 22%, transparent); color: var(--sky); }
+.hint { margin-top: 8px; padding: 9px 12px; border-radius: 12px; background: color-mix(in srgb, var(--rose) 18%, var(--night-2)); color: var(--cream); font-weight: 700; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+.hint .paw { font-size: 18px; }
+
+/* ---------- café window scene ---------- */
+.scene { position: relative; height: 148px; border-radius: var(--r); overflow: hidden; margin-top: 4px; background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bot) 100%); border: 4px solid var(--wood-dark); box-shadow: inset 0 0 0 3px var(--wood); }
+.scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.scene .mullion { position: absolute; top: 0; bottom: 20px; left: 50%; width: 6px; margin-left: -3px; background: linear-gradient(90deg, var(--wood-dark), var(--wood) 40%, var(--wood-dark)); }
+.scene .sill { position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: linear-gradient(180deg, var(--wood-light) 0 9px, var(--wood) 9px 12px, var(--wood-dark) 100%); box-shadow: 0 -1px 0 rgba(0,0,0,.25); }
+.scene .cat-sleep { position: absolute; bottom: 11px; left: 8px; width: 96px; }
+.scene .zz { position: absolute; left: 84px; bottom: 50px; font-family: var(--font-display); color: var(--cream); opacity: .6; font-size: 13px; animation: zz 3s ease-in-out infinite; }
+.scene .mug { position: absolute; bottom: 12px; right: 14px; width: 40px; }
+.mug .steam path { animation: steam 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.mug .steam path:nth-child(2) { animation-delay: .9s; }
+.mug .steam path:nth-child(3) { animation-delay: 1.8s; }
+@keyframes zz { 0%,100% { transform: translate(0,0); opacity: .2 } 50% { transform: translate(6px,-8px); opacity: .8 } }
+@keyframes steam { 0% { transform: translateY(5px) scaleY(.5); opacity: 0 } 35% { opacity: .75 } 100% { transform: translateY(-7px) scaleY(1.1); opacity: 0 } }
+.cat-sleep .breath { transform-origin: 50% 100%; animation: breathe 3.2s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { transform: scaleY(1) } 50% { transform: scaleY(1.04) } }
+.scene .pumpkins { position: absolute; bottom: 12px; right: 56px; width: 46px; }
+.scene.decor .sillcats { right: 100px; }
+.sillcats { position: absolute; left: 104px; right: 58px; bottom: 11px; display: flex; justify-content: center; align-items: flex-end; }
+.sillcats .sc { display: block; height: 46px; animation: perk 5s ease-in-out infinite; transform-origin: 50% 100%; }
+.sillcats .sc + .sc { margin-left: -13px; }
+.sillcats .sc.new { animation: pop .6s cubic-bezier(.2,1.6,.4,1), perk 5s ease-in-out .6s infinite; }
+@keyframes perk { 0%, 88%, 100% { transform: rotate(0) } 91% { transform: rotate(-4deg) } 95% { transform: rotate(3deg) } }
+@keyframes pop { from { transform: translateY(20px) scale(.3); opacity: 0 } }
+
+/* ---------- toolbar ---------- */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; margin-bottom: 8px; }
+.bar h2 { font-family: var(--font-display); font-weight: 400; font-size: 18px; margin: 0; }
+.seg { display: inline-flex; background: var(--night-2); border-radius: 999px; padding: 3px; }
+.seg button { padding: 5px 12px; border-radius: 999px; font-weight: 900; font-size: 13px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--night-3); color: var(--cream); }
+
+/* ---------- recipe cards ---------- */
+.list { display: grid; gap: 10px; }
+.card { background: var(--night-2); border-radius: var(--r); padding: 12px; display: grid; grid-template-columns: 72px 1fr; gap: 12px; position: relative; }
+:root[data-skin="sakura"] .card, :root[data-skin="latte"] .card { box-shadow: 0 1px 0 var(--line), 0 6px 18px -12px rgba(80,40,20,.35); }
+.card.locked { background: color-mix(in srgb, var(--night-2) 60%, var(--night)); border: 2px dashed var(--line); box-shadow: none; }
+.card.mystery { grid-template-columns: 1fr; text-align: center; color: var(--muted); font-weight: 800; padding: 16px; }
+.pot { width: 72px; height: 72px; border-radius: 22px; background: var(--night-3); display: grid; place-items: center; font-size: 38px; position: relative; transition: transform .08s; }
+.pot:active, .pot.squish { transform: scale(.9); }
+.pot .ring { position: absolute; inset: 0; color: var(--mint-deep); }
+.pot .lvl { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); background: var(--night); color: var(--cream); border: 2px solid var(--night-3); border-radius: 999px; font-size: 11px; font-weight: 900; padding: 0 7px; white-space: nowrap; }
+.pot .catbadge { position: absolute; top: -8px; right: -8px; width: 30px; height: 30px; border-radius: 50%; background: var(--rose); display: grid; place-items: center; border: 2px solid var(--night-2); overflow: hidden; }
+.locked .pot { filter: grayscale(1) brightness(.6); }
+:root[data-skin="sakura"] .locked .pot, :root[data-skin="latte"] .locked .pot { filter: grayscale(1) opacity(.45); }
+.body { min-width: 0; display: grid; gap: 7px; }
+.titlerow { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.name { font-weight: 900; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms { font-size: 11px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+.ms b { color: var(--rose); }
+.track { height: 22px; border-radius: 999px; background: var(--night-3); position: relative; overflow: hidden; }
+.fill { position: absolute; inset: 0 auto 0 0; width: 0%; background: linear-gradient(90deg, var(--mint-deep), var(--mint)); border-radius: 999px; }
+.trackinfo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 12px; font-weight: 900; color: var(--cream); text-shadow: var(--track-shadow); }
+.actions { display: flex; gap: 6px; }
+.buy { flex: 1; min-width: 0; height: 40px; border-radius: 12px; background: var(--lantern); color: var(--ink); font-weight: 900; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 8px; box-shadow: 0 3px 0 var(--lantern-deep); transition: transform .06s; }
+.buy:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--lantern-deep); }
+.buy[disabled] { background: var(--night-3); color: var(--muted); box-shadow: none; cursor: default; }
+.buy .lbl { opacity: .75; }
+.buy { white-space: nowrap; overflow: hidden; }
+.hire { height: 40px; border-radius: 12px; padding: 0 10px 0 5px; background: color-mix(in srgb, var(--rose) 22%, var(--night-3)); color: var(--cream); font-weight: 900; font-size: 12px; display: flex; align-items: center; gap: 5px; white-space: nowrap; flex: none; max-width: 56%; min-width: 0; }
+.hire svg { flex: none; }
+.hire .hl { display: grid; line-height: 1.1; text-align: left; min-width: 0; }
+.hire .hl b { font-weight: 900; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; }
+.hire .hl small { font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 3px; opacity: .9; }
+.hire .coin.sm { width: 11px; height: 11px; }
+.hire .coin.sm::after { inset: 2px; border-width: 1px; }
+.hire[disabled] { opacity: .6; cursor: default; }
+.hire.ready { background: var(--rose); color: var(--on-rose); }
+.glow { animation: glow 1.2s ease-in-out infinite; }
+@keyframes glow { 0%,100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rose) 70%, transparent) } 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--rose) 0%, transparent) } }
+
+/* ---------- floating numbers / particles ---------- */
+.float { position: fixed; z-index: 30; pointer-events: none; font-family: var(--font-display); color: var(--lantern); font-size: 18px; text-shadow: 0 2px 0 rgba(0,0,0,.3); animation: rise .9s ease-out forwards; white-space: nowrap; }
+.float.big { font-size: 26px; color: var(--star); }
+@keyframes rise { 0% { transform: translate(-50%, 0) scale(.8); opacity: 0 } 15% { opacity: 1; transform: translate(-50%, -8px) scale(1.05) } 100% { transform: translate(-50%, -56px) scale(1); opacity: 0 } }
+.spark { position: fixed; z-index: 30; pointer-events: none; width: 8px; height: 8px; border-radius: 50%; background: var(--lantern); }
+
+/* ---------- visitor cat ---------- */
+.visitor { position: fixed; z-index: 20; width: 90px; height: 100px; display: grid; place-items: center; animation: hop 0.9s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+.visitor .bubble { position: absolute; top: -4px; right: 0; background: var(--night-2); color: var(--cream); border: 2px solid var(--rose); border-radius: 12px; font-weight: 900; font-size: 12px; padding: 1px 7px; }
+.visitor.leaving { animation: fadeout .4s forwards; }
+@keyframes hop { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@keyframes fadeout { to { opacity: 0; transform: scale(.6) } }
+
+/* ---------- tab bar ---------- */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: color-mix(in srgb, var(--night) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.tabs-in { max-width: 480px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+.tab { padding: 8px 0 10px; display: grid; justify-items: center; gap: 2px; font-size: 12px; font-weight: 900; color: var(--muted); position: relative; }
+.tab .ico { font-size: 22px; line-height: 1.1; }
+.tab .dot { position: absolute; top: 6px; left: calc(50% + 10px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--rose); color: var(--on-rose); font-size: 11px; display: grid; place-items: center; }
+.tab[aria-expanded="true"] { color: var(--cream); }
+
+/* ---------- sheets ---------- */
+.veil { position: fixed; inset: 0; z-index: 40; background: rgba(10,6,24,.55); display: flex; align-items: flex-end; justify-content: center; animation: fade .2s; }
+.sheet { position: relative; width: 100%; max-width: 480px; max-height: 88%; overflow: auto; background: var(--night-2); color: var(--cream); border-radius: 24px 24px 0 0; padding-top: 18px; padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); animation: up .25s cubic-bezier(.2,.9,.3,1.2); }
+.sheet.center { border-radius: 24px; margin: auto 16px; max-width: 400px; text-align: center; }
+.veil.mid { align-items: center; }
+@keyframes up { from { transform: translateY(40px); opacity: 0 } }
+@keyframes fade { from { opacity: 0 } }
+.sheet h3 { font-family: var(--font-display); font-weight: 400; font-size: 24px; margin: 0 0 4px; text-wrap: balance; }
+.sheet h4 { font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 18px 0 8px; }
+.sheet p.sub { color: var(--muted); margin: 0 0 14px; font-weight: 700; }
+.sheet-head { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+.btn { height: 48px; border-radius: 14px; padding: 0 18px; font-weight: 900; font-size: 15px; background: var(--lantern); color: var(--ink); box-shadow: 0 3px 0 var(--lantern-deep); width: 100%; }
+.btn.alt { background: var(--night-3); color: var(--cream); box-shadow: none; }
+.btn.danger { background: var(--rose); color: var(--on-rose); box-shadow: 0 3px 0 color-mix(in srgb, var(--rose) 70%, black); }
+.btn[disabled] { background: var(--night-3); color: var(--muted); box-shadow: none; cursor: default; }
+.stack { display: grid; gap: 10px; }
+
+.quest { background: var(--night-3); border-radius: 16px; padding: 12px; display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; }
+.quest .qt { font-weight: 900; }
+.quest .qr { font-size: 12px; font-weight: 800; color: var(--muted); }
+.quest .qbar { grid-column: 1 / -1; height: 8px; border-radius: 999px; background: var(--night); overflow: hidden; }
+.quest .qbar i { display: block; height: 100%; background: var(--mint-deep); border-radius: 999px; }
+.quest button { height: 36px; border-radius: 10px; padding: 0 14px; font-weight: 900; background: var(--mint); color: var(--on-mint); }
+.quest button[disabled] { background: var(--night); color: var(--muted); }
+.quest.done { opacity: .6; }
+
+.days { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.day { background: var(--night-3); border-radius: 14px; padding: 10px 4px; text-align: center; display: grid; gap: 2px; justify-items: center; position: relative; border: 2px solid transparent; }
+.day .d { font-size: 11px; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.day .g { font-size: 24px; }
+.day .v { font-size: 11px; font-weight: 800; }
+.day.today { border-color: var(--lantern); }
+.day.got { opacity: .5; }
+.day.got::after { content: "✓"; position: absolute; top: 3px; right: 6px; color: var(--mint-deep); font-weight: 900; font-size: 12px; }
+.day.big { grid-column: span 2; }
+
+.starbox { background: var(--night-3); border-radius: 18px; padding: 16px; display: grid; gap: 8px; margin-bottom: 14px; text-align: left; }
+.starrow { display: flex; justify-content: space-between; font-weight: 800; gap: 10px; }
+.starrow span:first-child { color: var(--muted); }
+.meter { height: 12px; border-radius: 999px; background: var(--night); overflow: hidden; }
+.meter i { display: block; height: 100%; background: linear-gradient(90deg, #ffc94a, #ffe9a8); }
+.bigstar { font-size: 54px; line-height: 1; margin: 6px 0; }
+.away-amt { font-family: var(--font-display); font-size: 40px; color: var(--lantern); margin: 8px 0 4px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.toast { position: fixed; left: 50%; top: calc(14px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 50; background: var(--cream); color: var(--night); font-weight: 900; padding: 10px 16px; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.35); animation: toast 2.6s forwards; max-width: calc(100% - 32px); text-align: center; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, -10px) } 10%, 85% { opacity: 1; transform: translate(-50%, 0) } 100% { opacity: 0; transform: translate(-50%, -10px) } }
+.tiny { font-size: 12px; color: var(--muted); font-weight: 700; }
+.relocating { position: fixed; inset: 0; z-index: 60; background: var(--night); color: var(--cream); display: grid; place-items: center; text-align: center; animation: fade .3s; }
+.relocating h2 { font-family: var(--font-display); font-weight: 400; font-size: 30px; margin: 10px 0 0; }
+
+/* ---------- theme cards (picker + settings) ---------- */
+.skins { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.skin { text-align: left; border-radius: 16px; overflow: hidden; background: var(--night-3); border: 3px solid transparent; display: grid; transition: transform .1s; }
+.skin:active { transform: scale(.97); }
+.skins .skin:last-child:nth-child(odd) { grid-column: span 2; }
+.skin[aria-checked="true"] { border-color: var(--lantern); }
+.skin .pv { height: 62px; position: relative; }
+.skin .pv i { position: absolute; bottom: 0; left: 0; right: 0; height: 12px; }
+.skin .pv b { position: absolute; width: 14px; height: 14px; border-radius: 50%; top: 10px; right: 12px; }
+.skin .pv .sw { position: absolute; left: 10px; bottom: 18px; display: flex; gap: 4px; }
+.skin .pv .sw span { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.7); }
+.skin .meta { padding: 8px 10px 10px; display: grid; gap: 1px; }
+.skin .meta strong { font-size: 14px; font-weight: 900; }
+.skin .meta span { font-size: 11px; font-weight: 700; color: var(--muted); }
+.skin .meta em { font-style: normal; font-size: 12px; font-weight: 900; color: var(--lantern-deep); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+:root:not([data-skin="sakura"]):not([data-skin="latte"]) .skin .meta em { color: var(--lantern); }
+.skin .meta em.cur { color: var(--mint-deep); }
+.skin.confirm { border-color: var(--rose); }
+
+/* ---------- settings rows ---------- */
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.row .rl { display: grid; gap: 1px; min-width: 0; }
+.row .rl strong { font-weight: 900; }
+.row .rl span { font-size: 12px; color: var(--muted); font-weight: 700; }
+.switch { width: 52px; height: 30px; border-radius: 999px; background: var(--night-3); position: relative; flex: none; transition: background .2s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--night-2); box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .2s; }
+.switch[aria-checked="true"] { background: var(--mint-deep); }
+.switch[aria-checked="true"]::after { transform: translateX(22px); background: #fff; }
+
+/* ---------- Harvest Festival event ---------- */
+.event { margin-top: 12px; border-radius: var(--r); padding: 12px; background: linear-gradient(135deg, #7a3416, #b4561d 55%, #d98a2b); color: #fff7ea; display: grid; gap: 10px; box-shadow: 0 8px 22px -14px rgba(120,50,10,.8); position: relative; overflow: hidden; }
+.event::after { content: "🍂"; position: absolute; right: -6px; top: -10px; font-size: 64px; opacity: .14; transform: rotate(20deg); pointer-events: none; }
+.ev-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ev-title { font-family: var(--font-display); font-size: 17px; }
+.ev-time { font-size: 11px; font-weight: 900; opacity: .85; }
+.ev-link { font-size: 12px; font-weight: 900; background: rgba(255,255,255,.18); padding: 5px 10px; border-radius: 999px; color: #fff7ea; white-space: nowrap; }
+.ev-main { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
+.ev-main .pot { width: 64px; height: 64px; background: rgba(255,255,255,.16); font-size: 34px; }
+.ev-main .pot .ring { color: #ffe0a0; }
+.ev-main .pot .lvl { background: #7a3416; border-color: #b4561d; color: #fff7ea; }
+.ev-main .track { background: rgba(0,0,0,.22); }
+.ev-main .fill { background: linear-gradient(90deg, #ffc061, #ffe0a0); }
+.ev-main .trackinfo { color: #fff7ea; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+.ev-btn { flex: 1; height: 36px; border-radius: 11px; font-weight: 900; font-size: 12px; background: #fff3dc; color: #6b2c0f; display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; padding: 0 8px; }
+.ev-btn[disabled] { background: rgba(255,255,255,.18); color: rgba(255,247,234,.7); cursor: default; }
+.ev-next { font-size: 12px; font-weight: 800; display: grid; gap: 4px; }
+.ev-next .meter { background: rgba(0,0,0,.25); height: 8px; }
+.ev-next .meter i { background: linear-gradient(90deg, #ffc061, #fff0c8); }
+.tier { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; background: var(--night-3); border-radius: 14px; padding: 10px 12px; }
+.tier .ti { font-size: 26px; text-align: center; }
+.tier strong { display: block; font-weight: 900; }
+.tier span { font-size: 12px; color: var(--muted); font-weight: 700; }
+.tier .ts { font-weight: 900; font-size: 12px; white-space: nowrap; }
+.tier.got { opacity: .6; }
+.tier.got .ts { color: var(--mint-deep); }
+
+/* ---------- shop ---------- */
+.shopitem { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; background: var(--night-3); border-radius: 14px; padding: 10px 12px; }
+.shopitem .si { font-size: 26px; text-align: center; }
+.shopitem strong { display: block; font-weight: 900; }
+.shopitem span { font-size: 12px; color: var(--muted); font-weight: 700; }
+.shopitem button { height: 38px; border-radius: 11px; padding: 0 12px; font-weight: 900; font-size: 13px; background: var(--lantern); color: var(--ink); box-shadow: 0 2px 0 var(--lantern-deep); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.shopitem button[disabled] { background: var(--night); color: var(--muted); box-shadow: none; cursor: default; }
+
+/* ---------- cat album ---------- */
+.album { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stray { background: var(--night-3); border-radius: 14px; padding: 8px 6px 10px; display: grid; justify-items: center; gap: 2px; text-align: center; }
+.stray .ph { height: 66px; display: grid; place-items: end center; }
+.stray.missing .ph svg { filter: brightness(0) opacity(.28); }
+.stray strong { font-size: 13px; font-weight: 900; }
+.stray span { font-size: 10.5px; font-weight: 800; color: var(--muted); line-height: 1.2; }
+.stray.event { outline: 2px dashed #d98a2b; outline-offset: -2px; }
+.albumsum { display: flex; justify-content: space-between; gap: 10px; font-weight: 900; margin-bottom: 10px; }
+
+/* ---------- playtest ---------- */
+.moods { display: flex; gap: 8px; margin-bottom: 8px; }
+.moods button { flex: 1; height: 44px; border-radius: 12px; background: var(--night-3); font-size: 22px; border: 2px solid transparent; }
+.moods button[aria-pressed="true"] { border-color: var(--lantern); }
+textarea.note { width: 100%; min-height: 84px; resize: vertical; border-radius: 12px; border: 2px solid var(--line); background: var(--night); color: var(--cream); font: inherit; padding: 10px; user-select: text; -webkit-user-select: text; }
+textarea.note:focus { outline: none; border-color: var(--sky); }
+.ptrow { background: var(--night-3); border-radius: 14px; padding: 10px 12px; display: grid; gap: 4px; }
+.ptrow .who { display: flex; align-items: center; gap: 8px; font-weight: 900; }
+.ptrow .who img { width: 24px; height: 24px; border-radius: 50%; }
+.ptrow .facts { font-size: 12px; color: var(--muted); font-weight: 700; }
+.ptrow .nt { font-size: 13px; background: var(--night); border-radius: 10px; padding: 6px 8px; }
+
+.tabs-in { grid-template-columns: repeat(5, 1fr); }
+.tab { font-size: 11px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="top-row">
+      <div class="brand" id="brand"><b>Moonbean Café</b> · Willow Lane</div>
+      <span class="chip star num" id="starChip" title="Moon Stars">★ 0</span>
+      <button class="iconbtn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+    <div class="bank">
+      <div class="coins num"><span class="coin" aria-hidden="true"></span><span id="coins">0</span></div>
+      <div class="rate num" id="rate">tap a recipe to brew</div>
+    </div>
+    <div class="boosts" id="boosts"></div>
+    <div class="hint" id="hint" hidden><span class="paw">🐾</span><span id="hintText"></span></div>
+  </header>
+
+  <div class="scene" aria-hidden="true">
+    <canvas id="sky"></canvas>
+    <div class="mullion"></div>
+    <div class="sill"></div>
+    <div class="cat-sleep" id="sleepCat"></div>
+    <div class="zz">z</div>
+    <div class="sillcats" id="sillCats"></div>
+    <svg class="pumpkins" id="pumpkins" hidden viewBox="0 0 60 30">
+      <ellipse cx="30" cy="28.4" rx="28" ry="1.8" fill="#000" opacity=".22"/>
+      <g><ellipse cx="18" cy="19" rx="13" ry="9.5" fill="#e0782a"/><ellipse cx="18" cy="19" rx="7" ry="9.3" fill="#ec8a36"/><ellipse cx="18" cy="19" rx="2.6" ry="9" fill="#f59a45"/>
+        <path d="M18 10 q1 -4 4 -5" stroke="#5a7a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M21 7 q5 -2 6 2 q-4 1 -6 -2z" fill="#7aa23a"/></g>
+      <g><ellipse cx="44" cy="22" rx="9" ry="6.6" fill="#d96a22"/><ellipse cx="44" cy="22" rx="4.6" ry="6.4" fill="#e8823a"/>
+        <path d="M44 15.6 q.6 -3 2.6 -3.6" stroke="#5a7a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/></g>
+    </svg>
+    <svg class="mug" viewBox="0 0 44 52">
+      <defs>
+        <linearGradient id="mugBody" x1="0" x2="1">
+          <stop offset="0" stop-color="#d9d0c3"/><stop offset=".35" stop-color="#ffffff"/><stop offset=".7" stop-color="#f1ebe2"/><stop offset="1" stop-color="#c7bcad"/>
+        </linearGradient>
+        <radialGradient id="mugCoffee" cx=".45" cy=".4" r=".7">
+          <stop offset="0" stop-color="#b98353"/><stop offset=".55" stop-color="#7a4a2a"/><stop offset="1" stop-color="#4a2a17"/>
+        </radialGradient>
+      </defs>
+      <g class="steam" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round">
+        <path d="M14 18 c-3 -4 3 -6 0 -10 c-2 -3 1 -5 1 -6"/>
+        <path d="M20 17 c-3 -4 3 -6 0 -10 c-2 -3 1 -5 1 -6"/>
+        <path d="M26 18 c-3 -4 3 -6 0 -10 c-2 -3 1 -5 1 -6"/>
+      </g>
+      <ellipse cx="21" cy="49.5" rx="19" ry="2.4" fill="#000" opacity=".25"/>
+      <ellipse cx="21" cy="47" rx="18.5" ry="3.6" fill="#e8e1d6"/>
+      <ellipse cx="21" cy="46.2" rx="12" ry="2" fill="#cfc5b6"/>
+      <path d="M33 26 c8.5 -1 8.5 13 -1 12.5" fill="none" stroke="#e6ded2" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M33 26 c8.5 -1 8.5 13 -1 12.5" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>
+      <path d="M8 21.5 L10.2 43 Q10.6 46.2 14 46.2 L28 46.2 Q31.4 46.2 31.8 43 L34 21.5 Z" fill="url(#mugBody)"/>
+      <path d="M9 30 L33 30 L32.7 33 L9.3 33 Z" fill="var(--rose)" opacity=".85"/>
+      <ellipse cx="21" cy="21.5" rx="13" ry="3.4" fill="#f7f3ec"/>
+      <ellipse cx="21" cy="21.9" rx="11.2" ry="2.5" fill="url(#mugCoffee)"/>
+      <path d="M19.4 21.2 c-1 -1.2 .8 -2 1.6 -.9 c.8 -1.1 2.6 -.3 1.6 .9 l-1.6 1.3 z" fill="#f0dcc0" opacity=".9"/>
+    </svg>
+  </div>
+
+  <section class="event" id="eventCard" hidden aria-label="Harvest Festival">
+    <div class="ev-head">
+      <div><div class="ev-title">🍂 Harvest Festival</div><div class="ev-time num" id="evTime"></div></div>
+      <button class="ev-link" id="evRewards">Rewards ›</button>
+    </div>
+    <div class="ev-main">
+      <button class="pot" id="evPot" aria-label="Brew Pumpkin Spice Latte">
+        <svg class="ring" viewBox="0 0 72 72"><rect x="2" y="2" width="68" height="68" rx="21" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="0 999" pathLength="100" stroke-linecap="round"/></svg>
+        <span class="em">🎃</span><span class="lvl num" id="evLvl">Lv 1</span>
+      </button>
+      <div class="body">
+        <div class="titlerow"><span class="name">Pumpkin Spice Latte</span><span class="ms num" id="evBal" style="color:#fff3dc">0 🎃</span></div>
+        <div class="track"><div class="fill" id="evFill"></div><div class="trackinfo num"><span id="evPay"></span><span id="evTimeLeft"></span></div></div>
+        <div class="actions">
+          <button class="ev-btn num" id="evBuy"></button>
+          <button class="ev-btn num" id="evHire"></button>
+        </div>
+      </div>
+    </div>
+    <div class="ev-next num" id="evNext"></div>
+  </section>
+
+  <div class="bar">
+    <h2>Tonight's menu</h2>
+    <div class="seg" role="group" aria-label="Buy amount">
+      <button data-mode="1" aria-pressed="true">×1</button>
+      <button data-mode="10" aria-pressed="false">×10</button>
+      <button data-mode="max" aria-pressed="false">Max</button>
+    </div>
+  </div>
+  <div class="list" id="list"></div>
+  <p class="tiny" style="text-align:center;margin-top:18px">Progress saves on this device.</p>
+</div>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="tabs-in">
+    <button class="tab" data-tab="quests" aria-expanded="false"><span class="ico">📜</span>Quests<span class="dot" id="qDot" hidden>!</span></button>
+    <button class="tab" data-tab="daily" aria-expanded="false"><span class="ico">🎁</span>Daily<span class="dot" id="dDot" hidden>!</span></button>
+    <button class="tab" data-tab="shop" aria-expanded="false"><span class="ico">🛍️</span>Shop<span class="dot" id="sDot" hidden>!</span></button>
+    <button class="tab" data-tab="album" aria-expanded="false"><span class="ico">🐾</span>Cats<span class="dot" id="aDot" hidden>new</span></button>
+    <button class="tab" data-tab="move" aria-expanded="false"><span class="ico">🌙</span>New café<span class="dot" id="mDot" hidden>★</span></button>
+  </div>
+</nav>
+
+<script>
+(() => {
+"use strict";
+
+/* ================= data ================= */
+// tuned with a play simulation: first cat ~30s, recipe 3 ~2min, recipe 5 ~20min, recipe 7 after ~2h (before prestige)
+const RECIPES = [
+  { id: "coffee",    name: "Drip Coffee",      icon: "☕", cost: 5,     g: 1.09, rev: 1,     t: 0.8, cat: "Mochi",     catCost: 50,    look: "mochi" },
+  { id: "croissant", name: "Butter Croissant", icon: "🥐", cost: 80,    g: 1.14, rev: 30,    t: 3,   cat: "Biscuit",   catCost: 2500,  look: "biscuit" },
+  { id: "matcha",    name: "Matcha Latte",     icon: "🍵", cost: 1500,  g: 1.14, rev: 300,   t: 8,   cat: "Pistachio", catCost: 60000, look: "pistachio" },
+  { id: "cake",      name: "Strawberry Cake",  icon: "🍰", cost: 25000, g: 1.13, rev: 3000,  t: 15,  cat: "Peaches",   catCost: 1.5e6, look: "peaches" },
+  { id: "pancake",   name: "Pancake Tower",    icon: "🥞", cost: 4e5,   g: 1.13, rev: 30000, t: 30,  cat: "Maple",     catCost: 4e7,   look: "maple" },
+  { id: "parfait",   name: "Moon Parfait",     icon: "🍨", cost: 8e6,   g: 1.12, rev: 3e5,   t: 60,  cat: "Luna",      catCost: 1e9,   look: "luna" },
+  { id: "tea",       name: "Midnight Tea Set", icon: "🫖", cost: 1.6e8, g: 1.12, rev: 3e6,   t: 120, cat: "Earl",      catCost: 3e10,  look: "earl" },
+];
+const MILESTONES = [25, 50, 100, 200, 300, 400, 500, 750, 1000];
+const STREETS = ["Willow Lane", "Harbor Street", "Maple Hill", "Lantern Row", "Fern Gardens", "Comet Square", "Velvet Alley", "Starfall Pier"];
+const OFFLINE_CAP = 2 * 3600;
+const STAR_BONUS = 0.10;
+const STAR_UNIT = 1e7;
+const STAR_K = 3;
+const SAVE_KEY = "moonbean-cafe-v1";
+const DAILY = [
+  { kind: "coins", min: 5,  icon: "🪙", label: "5 min of tips" },
+  { kind: "boost", mult: 2, secs: 600,  icon: "⚡", label: "×2 for 10m" },
+  { kind: "coins", min: 15, icon: "💰", label: "15 min of tips" },
+  { kind: "boost", mult: 3, secs: 300,  icon: "🔥", label: "×3 for 5m" },
+  { kind: "coins", min: 30, icon: "💰", label: "30 min of tips" },
+  { kind: "boost", mult: 2, secs: 1800, icon: "⚡", label: "×2 for 30m" },
+  { kind: "star",           icon: "🌟", label: "+1 Moon Star" },
+];
+
+// Café themes. Colors live in the CSS (data-skin); this list drives the picker previews and the window's sky.
+const SKINS = [
+  { id: "midnight", name: "Midnight Plum",  tag: "Lantern light, starry sky",  sky: "night",  moonCut: "#36295f", prev: ["#2c2560", "#4a3570", "#6b4f36"], sw: ["#1b1630", "#ffb547", "#7fe0bd"] },
+  { id: "espresso", name: "Espresso Bar",   tag: "Dark wood, warm brass",      sky: "night",  moonCut: "#1f2b44", prev: ["#182338", "#33405e", "#4b3122"], sw: ["#1d1511", "#f2b65c", "#a6d9a0"] },
+  { id: "matcha",   name: "Matcha Garden",  tag: "Deep greens at dusk",        sky: "dusk",   moonCut: "#24434f", prev: ["#1d3a4a", "#4d6a5c", "#5d4632"], sw: ["#14201a", "#f6c35e", "#b4e38a"] },
+  { id: "sakura",   name: "Sakura Bakery",  tag: "Soft pink sunset",           sky: "sunset", moonCut: "#f39bb0", prev: ["#f39bb0", "#ffd2a6", "#b07c5a"], sw: ["#fbeef0", "#e45f80", "#f3a33f"] },
+  { id: "latte",    name: "Morning Latte",  tag: "Bright, creamy, sunny",      sky: "day",    moonCut: "#7fc0ee", prev: ["#7fc0ee", "#d4ecfa", "#a8784f"], sw: ["#f4ece2", "#ea9b2f", "#d9667a"] },
+];
+const skinById = (id) => SKINS.find((s) => s.id === id) || SKINS[0];
+
+// Cat coats
+const LOOKS = {
+  mochi:     { fur: "#e48f45", shade: "#a85a24", light: "#f8c48c", pattern: "tabby", stripe: "#a4561f", eye: "#9ccc3e", chest: "#f8e2c6", nose: "#d9727c" },
+  biscuit:   { fur: "#e6d0ad", shade: "#b89a72", light: "#fbf0dc", pattern: "point", stripe: "#8a6a4c", eye: "#5aa6e0", chest: "#fbf3e6", nose: "#c98b88" },
+  pistachio: { fur: "#9a9ea6", shade: "#62656d", light: "#cdd0d5", pattern: "tabby", stripe: "#56595f", eye: "#e8b730", chest: "#e4e6e9", nose: "#c98390" },
+  peaches:   { fur: "#f6f1e8", shade: "#cfc6b6", light: "#ffffff", pattern: "calico", stripe: "#e08c45", patch2: "#3d302a", eye: "#78c45c", chest: "#ffffff", nose: "#eb9aa6" },
+  maple:     { fur: "#7b5538", shade: "#4b311f", light: "#a87d58", pattern: "tabby", stripe: "#3b2414", eye: "#e0a634", chest: "#c9a380", nose: "#9a5a50" },
+  luna:      { fur: "#2e2b35", shade: "#141218", light: "#4d4957", pattern: "solid", eye: "#f3c94a", chest: "#2e2b35", nose: "#4a3a40" },
+  earl:      { fur: "#f6f4f0", shade: "#cdc8bf", light: "#ffffff", pattern: "solid", eye: "#6fb6ea", chest: "#ffffff", nose: "#f0a4ae" },
+  tux:       { fur: "#29262e", shade: "#131116", light: "#48444f", pattern: "tux",   eye: "#a6d24a", chest: "#f6f4f0", nose: "#d98a96" },
+  smoke:     { fur: "#5f6670", shade: "#3a3f46", light: "#8a929c", pattern: "solid", eye: "#e7a53a", chest: "#8a929c", nose: "#7a5a60" },
+  cream:     { fur: "#f0c98e", shade: "#c79a5e", light: "#fde6c0", pattern: "tabby", stripe: "#d39a55", eye: "#c8a23a", chest: "#fff1dc", nose: "#e49a9a" },
+  blue:      { fur: "#7f8fa3", shade: "#55637a", light: "#a9b6c6", pattern: "solid", eye: "#7fd06a", chest: "#93a2b4", nose: "#6f6a80" },
+  tortie:    { fur: "#3b2c26", shade: "#1f1612", light: "#5c463b", pattern: "calico", stripe: "#c8763a", patch2: "#e7a35c", eye: "#e2b13a", chest: "#5a463c", nose: "#6a4a46" },
+  pumpkin:   { fur: "#ef8a2c", shade: "#b4551a", light: "#ffc27a", pattern: "tabby", stripe: "#b04c14", eye: "#5bbf4a", chest: "#ffe1bd", nose: "#d9727c" },
+};
+
+// Strays who visit; tap them for tips, and sometimes they stay and join the Cat Album (kept forever, even after moving cafés)
+const STRAYS = [
+  { id: "biscotti", name: "Biscotti", look: "mochi",     perk: { t: "tips", v: 0.03 } },
+  { id: "domino",   name: "Domino",   look: "tux",       perk: { t: "visitor", v: 0.25 } },
+  { id: "puff",     name: "Puff",     look: "biscuit",   perk: { t: "tips", v: 0.03 } },
+  { id: "ash",      name: "Ash",      look: "smoke",     perk: { t: "offline", v: 1800 } },
+  { id: "patches",  name: "Patches",  look: "peaches",   perk: { t: "tips", v: 0.05 } },
+  { id: "shadow",   name: "Shadow",   look: "luna",      perk: { t: "tap", v: 0.25 } },
+  { id: "cocoa",    name: "Cocoa",    look: "maple",     perk: { t: "tips", v: 0.03 } },
+  { id: "nimbus",   name: "Nimbus",   look: "earl",      perk: { t: "offline", v: 1800 } },
+  { id: "sage",     name: "Sage",     look: "pistachio", perk: { t: "visitor", v: 0.25 } },
+  { id: "honey",    name: "Honey",    look: "cream",     perk: { t: "tips", v: 0.05 } },
+  { id: "blue",     name: "Blue",     look: "blue",      perk: { t: "tap", v: 0.25 } },
+  { id: "tortilla", name: "Tortilla", look: "tortie",    perk: { t: "tips", v: 0.05 } },
+  { id: "pumpkin",  name: "Pumpkin",  look: "pumpkin",   perk: { t: "tips", v: 0.10 }, event: true },
+];
+const strayById = (id) => STRAYS.find((s) => s.id === id);
+function perkText(p) {
+  if (p.t === "tips") return `+${Math.round(p.v * 100)}% all tips`;
+  if (p.t === "visitor") return `+${Math.round(p.v * 100)}% visitor tips`;
+  if (p.t === "tap") return `+${Math.round(p.v * 100)}% tap speed`;
+  return `+${Math.round(p.v / 60)}m away time`;
+}
+const ADOPT_CHANCE = 0.3;
+
+// Shop upgrades: bought with tips, reset when you open a new café
+const UPGRADES = [
+  { id: "tap1", kind: "tap", x: 2, cost: 400, icon: "🐾", name: "Quick paws", desc: "Tapping hurries orders twice as much" },
+  { id: "vis1", kind: "visitor", x: 3, cost: 3000, icon: "🍪", name: "Cat treat jar", desc: "Visiting cats leave ×3 tips" },
+  ...RECIPES.map((r, i) => ({ id: `r${i}a`, kind: "recipe", r: i, x: 3, cost: r.catCost * 20, icon: r.icon, name: `${r.name}: secret recipe`, desc: `${r.name} tips ×3` })),
+  ...RECIPES.map((r, i) => ({ id: `r${i}b`, kind: "recipe", r: i, x: 3, cost: r.catCost * 4000, icon: r.icon, name: `${r.name}: master's touch`, desc: `${r.name} tips ×3 again` })),
+  { id: "off1", kind: "offline", secs: 7200, cost: 2e5, icon: "🌙", name: "Night shift", desc: "Cats work 2h longer while you're away" },
+  { id: "tap2", kind: "tap", x: 2, cost: 2e6, icon: "🎓", name: "Barista training", desc: "Tapping hurries orders twice as much again" },
+  { id: "all1", kind: "all", x: 2, cost: 2e7, icon: "🛋️", name: "Cozy armchairs", desc: "All tips ×2" },
+  { id: "off2", kind: "offline", secs: 14400, cost: 5e8, icon: "🛏️", name: "Overnight crew", desc: "Cats work 4h longer while you're away" },
+  { id: "all2", kind: "all", x: 2, cost: 2e9, icon: "🔥", name: "Fireplace", desc: "All tips ×2" },
+  { id: "all3", kind: "all", x: 2, cost: 2e11, icon: "🎷", name: "Jazz record player", desc: "All tips ×2" },
+].sort((a, b) => a.cost - b.cost);
+
+// Weekend event: Friday 00:00 to Monday 00:00 (local time)
+const EVENT = {
+  name: "Harvest Festival", recipe: "Pumpkin Spice Latte", t: 4, helper: "Clove", helperCost: 60, helperLook: "cream",
+  tiers: [
+    { at: 30,   icon: "⚡", name: "×2 tips for 10 minutes", r: { kind: "boost", mult: 2, secs: 600 } },
+    { at: 120,  icon: "💰", name: "15 minutes of tips",     r: { kind: "coins", min: 15 } },
+    { at: 400,  icon: "🎃", name: "Harvest window decorations", r: { kind: "decor" } },
+    { at: 1000, icon: "🌟", name: "+1 Moon Star",            r: { kind: "star" } },
+    { at: 2500, icon: "🐈", name: "Pumpkin the cat joins your album", r: { kind: "cat", id: "pumpkin" } },
+    { at: 5000, icon: "🔥", name: "×3 tips for 30 minutes", r: { kind: "boost", mult: 3, secs: 1800 } },
+  ],
+};
+function eventWindow(now = Date.now()) {
+  const d = new Date(now); d.setHours(0, 0, 0, 0);
+  const back = (d.getDay() + 2) % 7; // days since Friday
+  d.setDate(d.getDate() - back);
+  const start = d.getTime(), end = new Date(start); end.setDate(end.getDate() + 3);
+  return { active: now < end.getTime(), start, end: end.getTime(), id: "harvest-" + dayKey(start) };
+}
+
+/* ================= state ================= */
+function freshRun() {
+  return RECIPES.map((r, i) => ({ lvl: i === 0 ? 1 : 0, cat: false, run: false, p: 0 }));
+}
+function freshState() {
+  return {
+    v: 1, coins: 0, life: 0, all: 0, stars: 0, pstars: 0, cafe: 0,
+    st: freshRun(), boosts: [], muted: false, music: true, vibe: true, pops: true, skin: null, mode: "1", tut: 0,
+    upg: [], album: {}, albumSeen: 0, ev: null, decor: { harvest: false }, playSecs: 0, sessions: 0, notes: [],
+    daily: { last: null, streak: 0 }, quests: null,
+    stats: { taps: 0, buys: 0, visitors: 0, hires: 0 },
+    seen: Date.now(),
+  };
+}
+let S = freshState();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (!d || d.v !== 1) return false;
+    S = Object.assign(freshState(), d);
+    while (S.st.length < RECIPES.length) S.st.push({ lvl: 0, cat: false, run: false, p: 0 });
+    return true;
+  } catch (e) { return false; }
+}
+function save() {
+  S.seen = Date.now();
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {}
+}
+
+/* ================= helpers ================= */
+const $ = (id) => document.getElementById(id);
+const SUF = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "Ud", "Dd"];
+function fmt(n) {
+  if (!isFinite(n)) return "∞";
+  if (n < 1000) return n < 10 && n % 1 ? n.toFixed(1) : Math.floor(n).toString();
+  let i = 0;
+  while (n >= 1000 && i < SUF.length - 1) { n /= 1000; i++; }
+  return (n >= 100 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2)) + SUF[i];
+}
+function fmtTime(s) {
+  s = Math.max(0, Math.round(s));
+  if (s < 60) return s + "s";
+  if (s < 3600) return Math.floor(s / 60) + "m " + String(s % 60).padStart(2, "0") + "s";
+  if (s >= 86400) return Math.floor(s / 86400) + "d " + Math.floor(s % 86400 / 3600) + "h";
+  return Math.floor(s / 3600) + "h " + String(Math.floor(s % 3600 / 60)).padStart(2, "0") + "m";
+}
+function dayKey(t = Date.now()) {
+  const d = new Date(t);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function yesterdayKey() { return dayKey(Date.now() - 864e5); }
+function msToMidnight() { const d = new Date(); d.setHours(24, 0, 0, 0); return d - Date.now(); }
+function rng(seedStr) {
+  let h = 2166136261;
+  for (const c of seedStr) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 1e6) / 1e6; };
+}
+function niceRound(n) {
+  if (n < 100) return Math.ceil(n / 10) * 10;
+  const p = Math.pow(10, Math.floor(Math.log10(n)) - 1);
+  return Math.ceil(n / p) * p;
+}
+
+/* ================= economy ================= */
+function msMult(l) { let m = 1; for (const t of MILESTONES) if (l >= t) m *= 2; return m; }
+function nextMs(l) { return MILESTONES.find((t) => t > l) || null; }
+function prevMs(l) { let p = 0; for (const t of MILESTONES) if (l >= t) p = t; return p; }
+function boostMult() {
+  const now = Date.now(); let m = 1;
+  for (const b of S.boosts) if (b.until > now) m *= b.mult;
+  return m;
+}
+function starMult() { return 1 + STAR_BONUS * S.stars; }
+function hasUpg(id) { return S.upg.includes(id); }
+function upgMult(kind, r) {
+  let m = 1;
+  for (const u of UPGRADES) if (u.kind === kind && (r === undefined || u.r === r) && hasUpg(u.id)) m *= u.x;
+  return m;
+}
+function albumPerk(t) {
+  let v = 0;
+  for (const s of STRAYS) if (S.album[s.id] && s.perk.t === t) v += s.perk.v;
+  return v;
+}
+function tipsMult() { return starMult() * upgMult("all") * (1 + albumPerk("tips")); }
+function visitorMult() { return upgMult("visitor") * (1 + albumPerk("visitor")); }
+function tapMult() { return upgMult("tap") * (1 + albumPerk("tap")); }
+function offlineCap() {
+  let s = OFFLINE_CAP + albumPerk("offline");
+  for (const u of UPGRADES) if (u.kind === "offline" && hasUpg(u.id)) s += u.secs;
+  return s;
+}
+function payout(i, withBoost = true) {
+  const s = S.st[i]; const r = RECIPES[i];
+  return r.rev * s.lvl * msMult(s.lvl) * upgMult("recipe", i) * tipsMult() * (withBoost ? boostMult() : 1);
+}
+function perSec(withBoost = true) {
+  let t = 0;
+  S.st.forEach((s, i) => { if (s.cat && s.lvl > 0) t += payout(i, withBoost) / RECIPES[i].t; });
+  return t;
+}
+function activePerSec() {
+  let t = 0;
+  S.st.forEach((s, i) => { if (s.lvl > 0) t += payout(i, false) / RECIPES[i].t; });
+  return t;
+}
+function costFor(i, n) {
+  const r = RECIPES[i], L = S.st[i].lvl;
+  return Math.ceil(r.cost * Math.pow(r.g, L) * (Math.pow(r.g, n) - 1) / (r.g - 1));
+}
+function maxAffordable(i) {
+  const r = RECIPES[i], L = S.st[i].lvl;
+  const c0 = r.cost * Math.pow(r.g, L);
+  return Math.max(0, Math.floor(Math.log(S.coins * (r.g - 1) / c0 + 1) / Math.log(r.g)));
+}
+function buyCount(i) {
+  if (S.st[i].lvl === 0) return 1;
+  if (S.mode === "max") return Math.max(1, maxAffordable(i));
+  return +S.mode;
+}
+// stars = 3·sqrt(tips / 10M): 1st star ≈ 1.1M tips, 3 stars at 10M, 9 at 100M
+function totalStarsFor(all) { return Math.floor(STAR_K * Math.sqrt(all / STAR_UNIT)); }
+function tipsForStars(k) { return Math.pow(k / STAR_K, 2) * STAR_UNIT; }
+function pendingStars() { return Math.max(0, totalStarsFor(S.all) - S.pstars); }
+function starProgress() {
+  const next = Math.max(S.pstars, totalStarsFor(S.all)) + 1;
+  const need = tipsForStars(next), prev = tipsForStars(next - 1);
+  return { next, need, frac: Math.min(1, Math.max(0, (S.all - prev) / (need - prev))) };
+}
+// changing the café theme after the first free pick costs about 15 minutes of tips
+function themeCost() { return niceRound(Math.max(2000, activePerSec() * 900)); }
+
+function earn(x) {
+  S.coins += x; S.life += x; S.all += x;
+  questEvent("earn", x);
+}
+
+/* ================= audio + haptics ================= */
+/* One audio graph: sound effects and music each have a gain, both feed a soft room reverb. */
+let ac = null, lastPlink = 0, A = null;
+function audio() {
+  if (A) { if (ac.state === "suspended") ac.resume().catch(() => {}); return A; }
+  try {
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    const master = ac.createGain(); master.gain.value = 0.9; master.connect(ac.destination);
+    const rev = ac.createConvolver();
+    const len = ac.sampleRate * 1.8, ir = ac.createBuffer(2, len, ac.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+    rev.buffer = ir;
+    const revGain = ac.createGain(); revGain.gain.value = 0.28; rev.connect(revGain); revGain.connect(master);
+    const fx = ac.createGain(); fx.gain.value = 1; fx.connect(master); fx.connect(rev);
+    const mus = ac.createGain(); mus.gain.value = 0; mus.connect(master); mus.connect(rev);
+    A = { master, fx, mus, rev };
+  } catch (e) { A = null; }
+  return A;
+}
+function tone(freq, dur = 0.08, type = "sine", vol = 0.05, slide = 0, when = 0, dest) {
+  if (S.muted && !dest) return;
+  const a = audio(); if (!a) return;
+  try {
+    const t0 = ac.currentTime + when;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    if (slide) o.frequency.exponentialRampToValueAtTime(freq * slide, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(dest || a.fx);
+    o.start(t0); o.stop(t0 + dur + 0.03);
+  } catch (e) {}
+}
+// a small bell: fundamental plus an inharmonic partial
+function bell(freq, vol = 0.04, when = 0, dur = 0.5) { tone(freq, dur, "sine", vol, 0, when); tone(freq * 2.76, dur * 0.45, "sine", vol * 0.35, 0, when); }
+const sfx = {
+  plink() { const n = performance.now(); if (n - lastPlink < 90) return; lastPlink = n; bell(1320 + Math.random() * 260, 0.022, 0, 0.25); },
+  tap() { tone(440, 0.07, "sine", 0.05, 1.5); tone(1800, 0.02, "triangle", 0.012); },
+  buy() { bell(784, 0.04); bell(1175, 0.035, 0.07); },
+  chime() { [784, 988, 1175, 1568].forEach((f, k) => bell(f, 0.035, k * 0.08, 0.6)); },
+  fanfare() { [523, 659, 784, 1047, 1319].forEach((f, k) => bell(f, 0.04, k * 0.07, 0.9)); tone(262, 0.6, "triangle", 0.03, 0, 0.28); },
+  meow() { if (S.muted) return; tone(620, 0.12, "sawtooth", 0.012, 1.35); tone(840, 0.3, "sawtooth", 0.014, 0.62, 0.1); },
+  no() { tone(200, 0.12, "triangle", 0.04, 0.7); },
+};
+
+/* Procedural lo-fi café loop: warm electric-piano chords, round bass, soft brushed drums, a little vinyl crackle. */
+const music = {
+  on: false, next: 0, step: 0, timer: 0, bpm: 74, noise: null,
+  chords: [[53, 57, 60, 64], [52, 55, 59, 62], [50, 53, 57, 60], [48, 52, 55, 59]], // Fmaj7  Em7  Dm7  Cmaj7
+  hz(m) { return 440 * Math.pow(2, (m - 69) / 12); },
+  start() {
+    const a = audio(); if (!a || this.on) return;
+    this.on = true;
+    a.mus.gain.cancelScheduledValues(ac.currentTime);
+    a.mus.gain.setTargetAtTime(0.55, ac.currentTime, 1.2);
+    if (!this.noise) {
+      const len = ac.sampleRate, b = ac.createBuffer(1, len, ac.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      this.noise = b;
+    }
+    this.next = ac.currentTime + 0.1; this.step = 0;
+    this.timer = setInterval(() => this.schedule(), 90);
+  },
+  stop() {
+    if (!this.on || !A) return;
+    this.on = false; clearInterval(this.timer);
+    A.mus.gain.setTargetAtTime(0, ac.currentTime, 0.4);
+  },
+  noiseHit(t, dur, vol, freq, type = "highpass") {
+    const s = ac.createBufferSource(); s.buffer = this.noise;
+    const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq;
+    const g = ac.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(A.mus);
+    s.start(t, Math.random() * 0.5, dur + 0.05);
+  },
+  keys(m, t, dur, vol) {
+    const f = this.hz(m);
+    const o1 = ac.createOscillator(), o2 = ac.createOscillator(), g = ac.createGain(), lp = ac.createBiquadFilter();
+    o1.type = "sine"; o2.type = "triangle"; o1.frequency.value = f; o2.frequency.value = f * 2.001;
+    lp.type = "lowpass"; lp.frequency.value = 1600;
+    const g2 = ac.createGain(); g2.gain.value = 0.18;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(lp); lp.connect(A.mus);
+    o1.start(t); o2.start(t); o1.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+  },
+  schedule() {
+    if (!this.on || !A) return;
+    const sixteenth = 60 / this.bpm / 4;
+    while (this.next < ac.currentTime + 0.35) {
+      const t = this.next, s = this.step % 64, bar = Math.floor(s / 16), beat = s % 16;
+      const ch = this.chords[bar];
+      const swing = beat % 2 ? sixteenth * 0.18 : 0;
+      if (beat === 0) ch.forEach((m, k) => this.keys(m, t + k * 0.012, sixteenth * 15, 0.05));
+      if (beat === 10) ch.slice(1).forEach((m, k) => this.keys(m + 12, t + swing + k * 0.01, sixteenth * 5, 0.025));
+      if (beat === 0 || beat === 7 || beat === 10) {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = "sine"; o.frequency.value = this.hz(ch[0] - 24 + (beat === 7 ? 7 : 0));
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + sixteenth * 5);
+        o.connect(g); g.connect(A.mus); o.start(t); o.stop(t + sixteenth * 6);
+      }
+      if (beat === 0 || beat === 9) { // soft kick
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.12);
+        g.gain.setValueAtTime(0.22, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        o.connect(g); g.connect(A.mus); o.start(t); o.stop(t + 0.25);
+      }
+      if (beat === 4 || beat === 12) this.noiseHit(t, 0.18, 0.05, 1800, "bandpass"); // brushed snare
+      if (beat % 2 === 0) this.noiseHit(t + swing, 0.04, beat % 4 ? 0.012 : 0.02, 7000); // hats
+      if (Math.random() < 0.08) this.noiseHit(t + Math.random() * sixteenth, 0.008, 0.03, 3000); // vinyl crackle
+      if (beat % 4 === 2 && Math.random() < 0.3) { // sparse pentatonic melody
+        const pent = [72, 74, 77, 79, 81, 84];
+        this.keys(pent[Math.floor(Math.random() * pent.length)], t + swing, sixteenth * 6, 0.022);
+      }
+      this.next += sixteenth; this.step++;
+    }
+  },
+};
+function syncMusic() { if (S.music && !document.hidden) music.start(); else music.stop(); }
+function buzz(ms) { try { if (S.vibe && navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+
+/* ================= effects ================= */
+function floatAt(x, y, text, big) {
+  if (!big && !S.pops) return;
+  const el = document.createElement("div");
+  el.className = "float" + (big ? " big" : "");
+  el.textContent = text;
+  el.style.left = x + "px"; el.style.top = y + "px";
+  el.addEventListener("animationend", () => el.remove());
+  document.body.appendChild(el);
+}
+function sparks(x, y, n = 8, color) {
+  for (let k = 0; k < n; k++) {
+    const el = document.createElement("div");
+    el.className = "spark";
+    if (color) el.style.background = color;
+    el.style.left = x + "px"; el.style.top = y + "px";
+    document.body.appendChild(el);
+    const a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 40;
+    const anim = el.animate([
+      { transform: "translate(-50%,-50%) scale(1)", opacity: 1 },
+      { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d}px)) scale(.3)`, opacity: 0 },
+    ], { duration: 500 + Math.random() * 300, easing: "cubic-bezier(.2,.8,.4,1)" });
+    anim.onfinish = () => el.remove();
+  }
+}
+function toast(msg) {
+  document.querySelectorAll(".toast").forEach((t) => t.remove());
+  const el = document.createElement("div");
+  el.className = "toast"; el.textContent = msg;
+  el.addEventListener("animationend", () => el.remove());
+  document.body.appendChild(el);
+}
+function centerOf(el) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+
+/* ================= cat drawing =================
+   Shaded vector cats: gradient-lit head and body, almond eyes with slit pupils and catchlights,
+   ear fur, muzzle pads, whiskers and coat patterns (tabby, colorpoint, calico, tuxedo). */
+let gidN = 0;
+function catDefs(L, id) {
+  return `<defs>
+    <radialGradient id="${id}h" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="${L.light}"/><stop offset=".55" stop-color="${L.fur}"/><stop offset="1" stop-color="${L.shade}"/></radialGradient>
+    <radialGradient id="${id}b" cx=".35" cy=".25" r=".9"><stop offset="0" stop-color="${L.light}"/><stop offset=".5" stop-color="${L.fur}"/><stop offset="1" stop-color="${L.shade}"/></radialGradient>
+    <linearGradient id="${id}l" x1="0" x2="1"><stop offset="0" stop-color="${L.fur}"/><stop offset="1" stop-color="${L.shade}"/></linearGradient>
+    <radialGradient id="${id}e" cx=".5" cy=".35" r=".65"><stop offset="0" stop-color="#fffbe0" stop-opacity=".9"/><stop offset=".45" stop-color="${L.eye}"/><stop offset="1" stop-color="${L.eye}" stop-opacity=".75"/></radialGradient>
+  </defs>`;
+}
+function catHeadParts(L, id, o = {}) {
+  const tabby = L.pattern === "tabby", point = L.pattern === "point", tux = L.pattern === "tux", calico = L.pattern === "calico";
+  const ear = (side) => {
+    const m = side < 0 ? "" : ` transform="translate(60 0) scale(-1 1)"`;
+    return `<g${m}>
+      <path d="M14.5 19 C13.5 12 14 6 15.5 2.6 C20 4.5 24.5 8 27.5 11.5 Z" fill="${point ? L.stripe : `url(#${id}h)`}"/>
+      <path d="M16.8 16.5 C16.4 12 16.8 8.4 17.6 6 C20.4 7.6 22.8 9.6 24.6 11.8 Z" fill="#e7a3ab" opacity=".9"/>
+      <path d="M17.5 14 l2 -3.5 M19 15 l2.6 -3.2 M18 12.6 l1 -3" stroke="${L.light}" stroke-width=".55" opacity=".85" stroke-linecap="round"/>
+    </g>`;
+  };
+  const eye = (x) => o.sleep
+    ? `<path d="M${x - 3.6} 21.2 Q${x} 23.6 ${x + 3.6} 21.2" stroke="${L.shade}" stroke-width="1.1" fill="none" stroke-linecap="round"/>`
+    : `<g>
+      <path d="M${x - 4.1} 21.2 Q${x} 16.6 ${x + 4.1} 21.2 Q${x} 24.4 ${x - 4.1} 21.2 Z" fill="url(#${id}e)" stroke="${L.shade}" stroke-width=".7"/>
+      <ellipse cx="${x}" cy="21" rx="${o.wide ? 1.7 : 1}" ry="2.6" fill="#141014"/>
+      <circle cx="${x + 1.2}" cy="19.6" r=".85" fill="#fff"/>
+      <circle cx="${x - 1.3}" cy="22.2" r=".4" fill="#fff" opacity=".7"/>
+    </g>`;
+  return `
+    ${ear(-1)}${ear(1)}
+    <path d="M30 8.6 C40 8.6 47.2 14.4 47 23.4 C47 27.6 45.2 30.6 42 32.6 C38.6 35 34.4 36 30 36 C25.6 36 21.4 35 18 32.6 C14.8 30.6 13 27.6 13 23.4 C12.8 14.4 20 8.6 30 8.6 Z" fill="url(#${id}h)"/>
+    <path d="M13.4 26 l-2.6 1.6 l3 .2 l-2.2 2.2 l3.2 -.6 M46.6 26 l2.6 1.6 l-3 .2 l2.2 2.2 l-3.2 -.6" fill="${L.fur}"/>
+    ${calico ? `<path d="M17 13 C21 9.6 26 9 28.6 9.6 C27 14 23 18.4 15.6 19.4 C15.4 17 15.8 14.8 17 13 Z" fill="${L.stripe}" opacity=".95"/><path d="M38 11 C42 12 45 15 46 19 C42.6 18.6 39.6 16 38 11 Z" fill="${L.patch2}" opacity=".9"/>` : ""}
+    ${point ? `<ellipse cx="30" cy="27.6" rx="9.5" ry="7.4" fill="${L.stripe}" opacity=".55"/>` : ""}
+    ${tux ? `<path d="M30 20.5 C34.5 22 38.5 26 38 30.6 C35.8 34 33 35.4 30 35.4 C27 35.4 24.2 34 22 30.6 C21.5 26 25.5 22 30 20.5 Z" fill="${L.chest}"/>` : ""}
+    ${tabby ? `<g stroke="${L.stripe}" stroke-linecap="round" fill="none" opacity=".85">
+      <path d="M30 10 v6.4" stroke-width="1.5"/><path d="M26.6 10.6 l1 5.2 M33.4 10.6 l-1 5.2" stroke-width="1.2"/>
+      <path d="M23.4 11.8 l1.6 3.4 M36.6 11.8 l-1.6 3.4" stroke-width=".9"/>
+      <path d="M14 22.6 q3 .2 5.2 1.4 M14.2 26 q2.8 -.2 5 .6 M46 22.6 q-3 .2 -5.2 1.4 M45.8 26 q-2.8 -.2 -5 .6" stroke-width="1"/>
+      <path d="M19.6 20 q-1.6 -1.6 -1.4 -3.4 M40.4 20 q1.6 -1.6 1.4 -3.4" stroke-width=".8"/></g>` : ""}
+    <ellipse cx="26.7" cy="28" rx="4.3" ry="3.3" fill="${tux || calico ? L.chest : L.light}" opacity="${point ? .5 : .95}"/>
+    <ellipse cx="33.3" cy="28" rx="4.3" ry="3.3" fill="${tux || calico ? L.chest : L.light}" opacity="${point ? .5 : .95}"/>
+    <ellipse cx="30" cy="31.4" rx="2.6" ry="1.6" fill="${tux || calico ? L.chest : L.light}" opacity=".8"/>
+    <g fill="${L.shade}" opacity=".55"><circle cx="25.4" cy="27.4" r=".42"/><circle cx="24.6" cy="29" r=".42"/><circle cx="26.4" cy="28.6" r=".42"/><circle cx="34.6" cy="27.4" r=".42"/><circle cx="35.4" cy="29" r=".42"/><circle cx="33.6" cy="28.6" r=".42"/></g>
+    ${eye(23.2)}${eye(36.8)}
+    <path d="M28.1 25 Q30 24.2 31.9 25 Q31.2 26.6 30 27.1 Q28.8 26.6 28.1 25 Z" fill="${L.nose}"/>
+    <path d="M28.8 25.1 Q30 24.7 30.8 25" stroke="#fff" stroke-width=".4" opacity=".55" fill="none"/>
+    <path d="M30 27.1 v1.3 M30 28.4 q-1.1 1.4 -2.6 .8 M30 28.4 q1.1 1.4 2.6 .8" stroke="${L.shade}" stroke-width=".7" fill="none" stroke-linecap="round"/>
+    <g stroke="${L.pattern === "solid" && L.fur < "#5" ? "#bdb8c4" : "#ffffff"}" stroke-width=".45" opacity=".75" stroke-linecap="round" fill="none">
+      <path d="M24.4 28.2 Q17 26.6 9.4 27.4"/><path d="M24.4 29.2 Q17 29.4 9.8 31.4"/><path d="M24.8 30.2 Q18.4 31.8 12 35"/>
+      <path d="M35.6 28.2 Q43 26.6 50.6 27.4"/><path d="M35.6 29.2 Q43 29.4 50.2 31.4"/><path d="M35.2 30.2 Q41.6 31.8 48 35"/>
+    </g>`;
+}
+// head only, for badges and buttons
+function catHead(look, size = 24) {
+  const L = LOOKS[look] || LOOKS.mochi, id = "c" + (gidN++);
+  return `<svg width="${size}" height="${size}" viewBox="9 2 42 36" aria-hidden="true">${catDefs(L, id)}${catHeadParts(L, id)}</svg>`;
+}
+// sitting cat, front view
+function catSit(look, h = 46, o = {}) {
+  const L = LOOKS[look] || LOOKS.mochi, id = "c" + (gidN++);
+  const tabby = L.pattern === "tabby", point = L.pattern === "point", tux = L.pattern === "tux", calico = L.pattern === "calico";
+  const pawFill = tux ? L.chest : point ? L.stripe : `url(#${id}l)`;
+  const w = Math.round(h * 60 / 74);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 60 74" aria-hidden="true">${catDefs(L, id)}
+    <ellipse cx="30" cy="71.6" rx="21" ry="2.4" fill="#000" opacity=".22"/>
+    <path d="M44 70 C55 70 58 60 55 50 C53.5 45 50 42.6 47.6 44" fill="none" stroke="${point ? L.stripe : L.shade}" stroke-width="6.2" stroke-linecap="round"/>
+    <path d="M44 70 C55 70 58 60 55 50 C53.5 45 50 42.6 47.6 44" fill="none" stroke="${point ? L.stripe : L.fur}" stroke-width="4.4" stroke-linecap="round"/>
+    ${tabby ? `<path d="M52.6 66 l3 -2 M55.6 58 l2.6 .2 M55 51 l2.4 -1" stroke="${L.stripe}" stroke-width="1.4" stroke-linecap="round"/>` : ""}
+    <path d="M30 32 C40.4 32 46.6 41 47.6 52 C48.4 60 47 66.6 44.6 70.6 L15.4 70.6 C13 66.6 11.6 60 12.4 52 C13.4 41 19.6 32 30 32 Z" fill="url(#${id}b)"/>
+    <path d="M15.6 70 C13.4 64 13.6 57 16.6 53 C19 56.4 20 62 19.6 70 Z" fill="${L.shade}" opacity=".35"/>
+    <path d="M44.4 70 C46.6 64 46.4 57 43.4 53 C41 56.4 40 62 40.4 70 Z" fill="${L.shade}" opacity=".35"/>
+    ${calico ? `<path d="M37 40 C43 41 47 47 47.4 55 C42 54 37.6 48 37 40 Z" fill="${L.stripe}"/><path d="M13 56 C14 50 17 46 21 45 C21 51 18 55 13 56 Z" fill="${L.patch2}"/>` : ""}
+    ${tabby ? `<g stroke="${L.stripe}" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".8"><path d="M14.4 50 q3 -1 5 1.6"/><path d="M13.6 56 q3.4 -1 5.4 1.6"/><path d="M45.6 50 q-3 -1 -5 1.6"/><path d="M46.4 56 q-3.4 -1 -5.4 1.6"/></g>` : ""}
+    <path d="M30 36 C36.4 37.6 39.6 44 39 52 C38.4 58 35 62 30 62 C25 62 21.6 58 21 52 C20.4 44 23.6 37.6 30 36 Z" fill="${L.chest}" opacity="${tux || calico ? 1 : point ? .7 : .55}"/>
+    <path d="M27 42 l1.2 2 M31.6 41.6 l-1 2.2 M29.4 46 l.2 2.2 M26 48 l1.4 1.8 M33.6 48 l-1.2 1.8" stroke="${L.shade}" stroke-width=".6" opacity=".35" stroke-linecap="round"/>
+    <path d="M20.8 50 C20.4 57 20.6 64 21.4 69.8 L27.6 69.8 C28 64 28 57 27.4 50 Z" fill="${tux ? L.chest : `url(#${id}l)`}"/>
+    <path d="M39.2 50 C39.6 57 39.4 64 38.6 69.8 L32.4 69.8 C32 64 32 57 32.6 50 Z" fill="${tux ? L.chest : `url(#${id}l)`}"/>
+    <ellipse cx="24.4" cy="69.6" rx="4.4" ry="2.4" fill="${pawFill}"/><ellipse cx="35.6" cy="69.6" rx="4.4" ry="2.4" fill="${pawFill}"/>
+    <path d="M22.6 69.4 v1.6 M24.4 69.2 v1.8 M26.2 69.4 v1.6 M33.8 69.4 v1.6 M35.6 69.2 v1.8 M37.4 69.4 v1.6" stroke="${L.shade}" stroke-width=".5" opacity=".6"/>
+    <ellipse cx="30" cy="37.4" rx="13" ry="3.6" fill="${L.shade}" opacity=".35"/>
+    <path d="M30 52 v17" stroke="${L.shade}" stroke-width=".8" opacity=".45"/>
+    ${catHeadParts(L, id, o)}
+  </svg>`;
+}
+// curled-up sleeping cat (side view) for the window sill
+function catSleep(look = "mochi") {
+  const L = LOOKS[look], id = "c" + (gidN++);
+  return `<svg viewBox="0 0 112 52" aria-hidden="true">${catDefs(L, id)}
+    <ellipse cx="54" cy="49.6" rx="48" ry="2.6" fill="#000" opacity=".25"/>
+    <g class="breath">
+      <path d="M10 48 C4 36 14 20 40 17 C62 15 84 22 92 36 C95 42 94 46 92 48 Z" fill="url(#${id}b)"/>
+      <path d="M14 46 C18 40 30 38 44 40" stroke="${L.shade}" stroke-width="1" fill="none" opacity=".35"/>
+      <g stroke="${L.stripe}" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".75">
+        <path d="M30 20 q2 6 -1 11"/><path d="M40 18 q2.4 7 -.6 12"/><path d="M50 18 q2.6 7 0 12"/><path d="M60 20 q2 6 -.6 10"/><path d="M20 26 q3 5 1 9"/>
+      </g>
+      <path d="M12 47 C22 52 52 52 74 47" fill="none" stroke="${L.shade}" stroke-width="7.4" stroke-linecap="round"/>
+      <path d="M12 47 C22 52 52 52 74 47" fill="none" stroke="${L.fur}" stroke-width="5.6" stroke-linecap="round"/>
+      <g stroke="${L.stripe}" stroke-width="1.6" stroke-linecap="round"><path d="M20 47.6 v3"/><path d="M30 49 v3"/><path d="M40 49.4 v3"/></g>
+      <ellipse cx="72" cy="45.6" rx="7" ry="3.2" fill="${L.light}"/>
+      <path d="M68.6 45 v1.6 M71 44.6 v1.8 M73.4 44.8 v1.6" stroke="${L.shade}" stroke-width=".5" opacity=".6"/>
+    </g>
+    <g transform="translate(54 13) scale(.84) rotate(10 30 22)">${catHeadParts(L, id, { sleep: true })}</g>
+  </svg>`;
+}
+
+/* hired cats sit in the café window */
+function renderSill(newIdx = -1) {
+  const box = $("sillCats"); if (!box) return;
+  box.innerHTML = S.st.map((s, i) => s.cat
+    ? `<span class="sc${i === newIdx ? " new" : ""}" style="animation-delay:${i === newIdx ? "0s" : (i * 0.7) + "s"}" title="${RECIPES[i].cat}">${catSit(RECIPES[i].look, 46)}</span>`
+    : "").join("");
+}
+
+/* ================= recipe cards ================= */
+const cards = [];
+function buildList() {
+  const list = $("list");
+  list.innerHTML = "";
+  cards.length = 0;
+  RECIPES.forEach((r, i) => {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <button class="pot" aria-label="Brew ${r.name}">
+        <svg class="ring" viewBox="0 0 72 72"><rect x="2" y="2" width="68" height="68" rx="21" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="0 999" pathLength="100" stroke-linecap="round"/></svg>
+        <span class="em">${r.icon}</span>
+        <span class="lvl num">Lv 0</span>
+      </button>
+      <div class="body">
+        <div class="titlerow"><span class="name">${r.name}</span><span class="ms num"></span></div>
+        <div class="track"><div class="fill"></div><div class="trackinfo num"><span class="pay"></span><span class="time"></span></div></div>
+        <div class="actions">
+          <button class="buy num"><span class="lbl">Buy</span><span class="coin sm"></span><span class="c"></span></button>
+          <button class="hire" aria-label="Hire ${r.cat} for ${fmt(r.catCost)} tips">${catHead(r.look, 24)}<span class="hl"><b>Hire ${r.cat}</b><small class="num"><span class="coin sm"></span>${fmt(r.catCost)}</small></span></button>
+        </div>
+      </div>`;
+    const c = {
+      el, pot: el.querySelector(".pot"), ring: el.querySelector(".ring rect"), lvl: el.querySelector(".lvl"),
+      ms: el.querySelector(".ms"), fill: el.querySelector(".fill"), pay: el.querySelector(".pay"), time: el.querySelector(".time"),
+      buy: el.querySelector(".buy"), buyLbl: el.querySelector(".buy .lbl"), buyC: el.querySelector(".buy .c"), hire: el.querySelector(".hire"),
+      badge: null, lastFloat: 0, acc: 0,
+    };
+    c.pot.addEventListener("pointerdown", (e) => { e.preventDefault(); tapRecipe(i); });
+    c.pot.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tapRecipe(i); } });
+    c.buy.addEventListener("click", () => buy(i));
+    c.hire.addEventListener("click", () => hire(i));
+    cards.push(c);
+    list.appendChild(el);
+  });
+  const myst = document.createElement("div");
+  myst.className = "card mystery"; myst.id = "mystery";
+  myst.textContent = "More recipes appear as your café grows…";
+  list.appendChild(myst);
+  refreshCards();
+  renderSill();
+}
+
+function refreshCards() {
+  const firstLocked = S.st.findIndex((s) => s.lvl === 0);
+  cards.forEach((c, i) => {
+    const s = S.st[i], r = RECIPES[i];
+    const visible = firstLocked === -1 || i <= firstLocked;
+    c.el.hidden = !visible;
+    if (!visible) return;
+    const locked = s.lvl === 0;
+    c.el.classList.toggle("locked", locked);
+    c.lvl.textContent = locked ? "Locked" : "Lv " + s.lvl;
+    if (locked) c.ms.innerHTML = "";
+    else {
+      const nm = nextMs(s.lvl);
+      c.ms.innerHTML = nm ? `next <b>×2</b> at Lv ${nm}` : "<b>max mastery</b>";
+    }
+    const n = buyCount(i);
+    const cost = costFor(i, n);
+    c.buy.disabled = cost > S.coins;
+    c.buyLbl.textContent = locked ? "Unlock" : "Lv +" + n;
+    c.buyC.textContent = fmt(cost);
+    if (s.cat) {
+      c.hire.hidden = true;
+      if (!c.badge) { c.badge = document.createElement("span"); c.badge.className = "catbadge"; c.badge.innerHTML = catHead(r.look, 28); c.pot.appendChild(c.badge); }
+    } else {
+      if (c.badge) { c.badge.remove(); c.badge = null; }
+      c.hire.hidden = locked;
+      const can = S.coins >= r.catCost;
+      c.hire.disabled = !can;
+      c.hire.classList.toggle("ready", can);
+    }
+    if (locked) { c.pay.textContent = "+" + fmt(r.rev * upgMult("recipe", i) * tipsMult() * boostMult()); c.time.textContent = fmtTime(r.t); }
+  });
+  $("mystery").hidden = firstLocked === -1 || firstLocked >= RECIPES.length - 1;
+  updateHint();
+}
+
+function drawCards() {
+  cards.forEach((c, i) => {
+    const s = S.st[i], r = RECIPES[i];
+    if (s.lvl === 0 || c.el.hidden) return;
+    const p = s.run || s.cat ? s.p : 0;
+    c.fill.style.width = p * 100 + "%";
+    c.ring.setAttribute("stroke-dasharray", `${p * 100} 999`);
+    c.pay.textContent = "+" + fmt(payout(i));
+    c.time.textContent = s.run || s.cat ? fmtTime(r.t * (1 - s.p)) : "tap ☝";
+  });
+}
+
+/* ================= actions ================= */
+function tapRecipe(i) {
+  const s = S.st[i], r = RECIPES[i], c = cards[i];
+  if (s.lvl === 0) { sfx.no(); return; }
+  c.pot.classList.add("squish"); setTimeout(() => c.pot.classList.remove("squish"), 90);
+  S.stats.taps++; questEvent("tap", 1);
+  if (!s.run && !s.cat) { s.run = true; s.p = 0; }
+  else s.p += Math.max(0.08, 0.45 / r.t) * tapMult();
+  sfx.tap(); buzz(6);
+  if (S.tut === 0) { S.tut = 1; updateHint(); }
+}
+
+function buy(i) {
+  const n = buyCount(i);
+  const cost = costFor(i, n);
+  if (cost > S.coins) { sfx.no(); return; }
+  const s = S.st[i];
+  const before = s.lvl;
+  S.coins -= cost; s.lvl += n;
+  S.stats.buys += n; questEvent("buy", n);
+  sfx.buy(); buzz(10);
+  const p = centerOf(cards[i].buy);
+  if (before === 0) {
+    toast(`${RECIPES[i].icon} ${RECIPES[i].name} is on the menu!`);
+    sparks(p.x, p.y, 14, "#7fe0bd");
+  }
+  if (prevMs(s.lvl) > prevMs(before) && before > 0) {
+    sfx.chime(); buzz([10, 40, 10]);
+    const q = centerOf(cards[i].pot);
+    floatAt(q.x, q.y - 20, "Signature recipe ×2!", true);
+    sparks(q.x, q.y, 18, "#ff8fa8");
+  }
+  if (S.tut === 1) S.tut = 2;
+  refreshCards(); save();
+}
+
+function hire(i) {
+  const r = RECIPES[i], s = S.st[i];
+  if (s.cat || S.coins < r.catCost || s.lvl === 0) { sfx.no(); return; }
+  S.coins -= r.catCost; s.cat = true; s.run = true;
+  S.stats.hires++; questEvent("hire", 1);
+  sfx.meow(); setTimeout(sfx.chime, 200); buzz([10, 30, 10]);
+  const p = centerOf(cards[i].pot);
+  sparks(p.x, p.y, 16, "#ff8fa8");
+  toast(`${r.cat} joined the café! ${r.name} now brews on its own.`);
+  renderSill(i);
+  if (S.tut <= 2) S.tut = 3;
+  refreshCards(); save();
+}
+
+/* ================= hints ================= */
+function updateHint() {
+  let msg = "";
+  cards.forEach((c) => { c.pot.classList.remove("glow"); c.buy.classList.remove("glow"); c.hire.classList.remove("glow"); });
+  if (S.tut === 0) { msg = "Tap the coffee cup to brew your first order."; cards[0].pot.classList.add("glow"); }
+  else if (S.tut === 1 && S.coins >= costFor(0, 1)) { msg = "Spend tips to level up Drip Coffee. Higher levels earn more per cup."; cards[0].buy.classList.add("glow"); }
+  else if (S.tut === 1) msg = "Keep tapping to earn tips.";
+  else if (S.tut === 2 && S.coins >= RECIPES[0].catCost) { msg = "Hire Mochi! Cats brew for you, even while the game is closed."; cards[0].hire.classList.add("glow"); }
+  else if (S.tut === 2) msg = `Save up ${fmt(RECIPES[0].catCost)} tips to hire your first cat.`;
+  $("hint").hidden = !msg;
+  $("hintText").textContent = msg;
+}
+
+/* ================= boosts ================= */
+function addBoost(mult, secs, label) {
+  S.boosts.push({ mult, until: Date.now() + secs * 1000, label });
+  refreshCards(); save();
+}
+function drawBoosts() {
+  const now = Date.now();
+  S.boosts = S.boosts.filter((b) => b.until > now);
+  $("boosts").innerHTML = S.boosts.map((b) => `<span class="boost num">⚡ ${b.label || "×" + b.mult} · ${fmtTime((b.until - now) / 1000)}</span>`).join("");
+}
+
+/* ================= visiting cats ================= */
+let nextVisitor = Date.now() + 25000, visitorEl = null, visitorTimer = 0;
+function spawnVisitor() {
+  if (visitorEl || document.hidden || S.tut < 1 || document.querySelector(".veil")) return;
+  // strays you haven't adopted yet show up more often
+  const pool = STRAYS.filter((s) => !s.event);
+  const fresh = pool.filter((s) => !S.album[s.id]);
+  const from = fresh.length && Math.random() < 0.6 ? fresh : pool;
+  const v = from[Math.floor(Math.random() * from.length)];
+  const el = document.createElement("button");
+  el.className = "visitor";
+  el.setAttribute("aria-label", "A visiting cat! Tap for a reward");
+  el.innerHTML = catSit(v.look, 92, { wide: Math.random() < .5 }) + '<span class="bubble">!</span>';
+  const w = Math.min(window.innerWidth, 480);
+  const left = (window.innerWidth - w) / 2 + 20 + Math.random() * (w - 130);
+  const top = window.innerHeight * (0.35 + Math.random() * 0.35);
+  el.style.left = left + "px"; el.style.top = top + "px";
+  el.addEventListener("pointerdown", (e) => { e.preventDefault(); catchVisitor(v); });
+  document.body.appendChild(el);
+  visitorEl = el;
+  sfx.meow();
+  visitorTimer = setTimeout(() => dismissVisitor(), 10000);
+}
+function dismissVisitor() {
+  if (!visitorEl) return;
+  const el = visitorEl; visitorEl = null;
+  clearTimeout(visitorTimer);
+  el.classList.add("leaving");
+  setTimeout(() => el.remove(), 400);
+  nextVisitor = Date.now() + 45000 + Math.random() * 45000;
+}
+function catchVisitor(v) {
+  if (!visitorEl) return;
+  const p = centerOf(visitorEl);
+  S.stats.visitors++; questEvent("visitor", 1);
+  sfx.chime(); buzz([8, 30, 8]);
+  sparks(p.x, p.y, 16);
+  const who = v.name;
+  const ev = eventState();
+  if (ev) { const pk = 3 + Math.floor(ev.lvl / 3); ev.pk += pk; ev.tot += pk; checkTiers(); setTimeout(() => floatAt(p.x, p.y - 60, `+${pk} 🎃`, true), 250); }
+  if (!S.album[v.id] && Math.random() < ADOPT_CHANCE) {
+    adopt(v.id, `${who} decided to stay! New friend in your Cat Album: ${perkText(v.perk)}.`);
+  } else if (Math.random() < 0.35 && S.st.some((s) => s.cat)) {
+    addBoost(3, 30, "Rush hour ×3");
+    toast(`Rush hour! ${who} brought friends. ×3 tips for 30s`);
+  } else {
+    const amt = Math.max(25, activePerSec() * 60, payout(0, false) * 40) * visitorMult();
+    earn(amt);
+    floatAt(p.x, p.y - 30, "+" + fmt(amt), true);
+    toast(`${who} left a tip of ${fmt(amt)}!`);
+  }
+  dismissVisitor();
+  refreshCards(); save();
+}
+function adopt(id, msg) {
+  if (S.album[id]) return;
+  S.album[id] = Date.now();
+  sfx.meow(); setTimeout(sfx.fanfare, 250); buzz([10, 40, 10, 40, 10]);
+  toast(msg);
+  refreshCards(); save();
+}
+
+/* ================= daily rewards ================= */
+function dailyAvailable() { return S.daily.last !== dayKey(); }
+function dailyIndex() {
+  const cont = S.daily.last === yesterdayKey();
+  const streak = cont ? S.daily.streak : 0;
+  return dailyAvailable() ? streak % 7 : (S.daily.streak - 1) % 7;
+}
+function rewardCoins(minutes) { return Math.max(100 * minutes, activePerSec() * 60 * minutes); }
+function claimDaily() {
+  if (!dailyAvailable()) return;
+  const idx = dailyIndex();
+  const cont = S.daily.last === yesterdayKey();
+  S.daily.streak = (cont ? S.daily.streak : 0) + 1;
+  S.daily.last = dayKey();
+  const d = DAILY[idx];
+  if (d.kind === "coins") { const a = rewardCoins(d.min); earn(a); toast(`Day ${idx + 1}: +${fmt(a)} tips`); }
+  else if (d.kind === "boost") { addBoost(d.mult, d.secs, `Daily ×${d.mult}`); toast(`Day ${idx + 1}: ×${d.mult} tips for ${fmtTime(d.secs)}`); }
+  else { S.stars++; toast("Day 7: a Moon Star! +10% tips forever"); renderHeader(); }
+  sfx.chime(); buzz([10, 40, 10]);
+  save(); refreshCards(); openSheet("daily");
+}
+
+/* ================= quests ================= */
+const QUEST_POOL = {
+  tap:       (R) => { const n = [40, 60, 90][Math.floor(R() * 3)]; return { text: `Serve ${n} orders by hand`, target: n }; },
+  earn:      () => { const n = niceRound(Math.max(1500, activePerSec() * 600)); return { text: `Earn ${fmt(n)} tips`, target: n }; },
+  buy:       (R) => { const n = [15, 25, 40][Math.floor(R() * 3)]; return { text: `Buy ${n} recipe levels`, target: n }; },
+  visitor:   (R) => { const n = [2, 3, 4][Math.floor(R() * 3)]; return { text: `Greet ${n} visiting cats`, target: n }; },
+  hire:      () => ({ text: "Hire a new cat", target: 1 }),
+  milestone: () => { const top = Math.max(...S.st.map((s) => s.lvl)); const t = nextMs(top) || top + 50; return { text: `Get any recipe to Lv ${t}`, target: t }; },
+};
+function ensureQuests() {
+  const today = dayKey();
+  if (S.quests && S.quests.day === today) return;
+  const R = rng("moonbean" + today + S.cafe);
+  const canHire = S.st.some((s, i) => !s.cat && (s.lvl > 0 || (i > 0 && S.st[i - 1].lvl > 0)));
+  let types = [...new Set(["tap", "earn", "buy", "visitor", canHire ? "hire" : "milestone", "milestone"])];
+  const picks = [];
+  while (picks.length < 3) picks.push(types.splice(Math.floor(R() * types.length), 1)[0]);
+  S.quests = {
+    day: today, bonus: false,
+    list: picks.map((type, k) => Object.assign({ type, prog: 0, done: false, reward: k === 1 ? "boost" : "coins" }, QUEST_POOL[type](R))),
+  };
+  save();
+}
+function questProg(q) { return q.type === "milestone" ? Math.max(...S.st.map((s) => s.lvl)) : q.prog; }
+function questEvent(type, amt) {
+  if (!S.quests) return;
+  for (const q of S.quests.list) if (q.type === type && !q.done) q.prog += amt;
+}
+function questsReady() { return S.quests ? S.quests.list.filter((q) => !q.done && questProg(q) >= q.target).length : 0; }
+function claimQuest(k) {
+  const q = S.quests.list[k];
+  if (q.done || questProg(q) < q.target) return;
+  q.done = true;
+  if (q.reward === "boost") { addBoost(2, 300, "Quest ×2"); toast("Quest done: ×2 tips for 5 minutes"); }
+  else { const a = rewardCoins(5); earn(a); toast(`Quest done: +${fmt(a)} tips`); }
+  sfx.chime(); buzz([8, 30, 8]);
+  if (S.quests.list.every((x) => x.done) && !S.quests.bonus) {
+    S.quests.bonus = true;
+    setTimeout(() => { addBoost(3, 600, "All quests ×3"); toast("All quests done! ×3 tips for 10 minutes"); sfx.chime(); }, 900);
+  }
+  save(); refreshCards(); openSheet("quests");
+}
+
+/* ================= prestige ================= */
+function relocate() {
+  const gain = pendingStars();
+  if (gain < 1) return;
+  closeSheet();
+  S.stars += gain; S.pstars += gain; S.cafe++;
+  S.coins = 0; S.life = 0; S.st = freshRun(); S.boosts = []; S.upg = [];
+  S.quests = null; ensureQuests();
+  const street = STREETS[S.cafe % STREETS.length];
+  const cover = document.createElement("div");
+  cover.className = "relocating";
+  cover.innerHTML = `<div><div class="bigstar">🌙</div><h2>Moonbean Café<br>${street}</h2><p class="tiny" style="font-size:14px">+${gain} Moon Star${gain > 1 ? "s" : ""} · all tips +${Math.round(S.stars * STAR_BONUS * 100)}%</p></div>`;
+  document.body.appendChild(cover);
+  sfx.chime(); setTimeout(sfx.chime, 400); buzz([20, 60, 20, 60, 20]);
+  setTimeout(() => { cover.style.transition = "opacity .5s"; cover.style.opacity = "0"; setTimeout(() => cover.remove(), 500); }, 2200);
+  save(); renderHeader(); buildList();
+  window.scrollTo(0, 0);
+}
+
+/* ================= shop ================= */
+function buyUpgrade(id) {
+  const u = UPGRADES.find((x) => x.id === id);
+  if (!u || hasUpg(id) || S.coins < u.cost) { sfx.no(); return; }
+  S.coins -= u.cost; S.upg.push(id);
+  sfx.chime(); buzz([10, 30, 10]);
+  toast(`${u.icon} ${u.name}: ${u.desc}`);
+  refreshCards(); save(); openSheet("shop");
+}
+function shopReady() { return UPGRADES.some((u) => !hasUpg(u.id) && (u.kind !== "recipe" || S.st[u.r].lvl > 0) && S.coins >= u.cost); }
+
+/* ================= playtest (shared store) =================
+   Each player writes one document, playtest/<their id>; only the game's owner can read them all. */
+const pt = { db: null, user: null, uid: null, owner: false, lastSync: 0, lastBody: "" };
+let ptMood = null;
+async function initPlaytest() {
+  if (!window.claude || !window.claude.use) return;
+  try {
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!db || !user) return;
+    pt.db = db; pt.user = user;
+    pt.uid = await user.id();
+    pt.owner = await user.isOwner();
+    if (sheetKind === "settings") openSheet("settings");
+  } catch (e) {}
+}
+function ptStats() {
+  return {
+    playMinutes: Math.round(S.playSecs / 60), sessions: S.sessions,
+    recipes: S.st.filter((s) => s.lvl > 0).length, cats: S.st.filter((s) => s.cat).length,
+    album: Object.keys(S.album).length, stars: S.stars, cafes: S.cafe + 1, upgrades: S.upg.length,
+    tipsAllTime: Math.round(S.all), theme: S.skin || "", streak: S.daily.streak,
+  };
+}
+async function syncPlaytest(force) {
+  if (!pt.db || !pt.uid || !S.notes.length) return; // only players who chose to send feedback share progress
+  const body = { ...ptStats(), notes: S.notes.slice(-10) };
+  const json = JSON.stringify(body);
+  if (!force && (json === pt.lastBody || Date.now() - pt.lastSync < 120000)) return;
+  pt.lastSync = Date.now();
+  try { await pt.db.doc("playtest/" + pt.uid).set({ ...body, updatedAt: new Date().toISOString() }); pt.lastBody = json; }
+  catch (e) { if (force) toast("Couldn't send right now. You may need Contributor access to this game."); throw e; }
+}
+async function sendFeedback() {
+  const ta = $("ptNote");
+  const text = (ta && ta.value || "").trim();
+  if (!text && !ptMood) { toast("Pick a face or write a note first."); return; }
+  S.notes.push({ text: text.slice(0, 600), mood: ptMood || "", at: new Date().toISOString() });
+  save();
+  try { await syncPlaytest(true); toast("Sent! Thanks for playtesting."); sfx.chime(); ptMood = null; openSheet("settings"); }
+  catch (e) { S.notes.pop(); save(); }
+}
+async function loadResults() {
+  const box = $("ptList"); if (!box || !pt.db) return;
+  let snap;
+  try { snap = await pt.db.collection("playtest").get(); } catch (e) { box.innerHTML = `<p class="tiny">Couldn't load results right now. Try again in a moment.</p>`; return; }
+  if (snap.empty) { box.innerHTML = `<p class="tiny">No feedback yet. Share the game with friends (as Contributors) and ask them to use Settings → Send feedback.</p>`; return; }
+  const ids = snap.docs.map((d) => d.id);
+  const ps = await pt.user.profiles(ids);
+  const moodE = { meh: "😕", ok: "🙂", love: "😍" };
+  box.innerHTML = "";
+  snap.docs.sort((a, b) => String(b.data().updatedAt).localeCompare(String(a.data().updatedAt))).forEach((d) => {
+    const v = d.data() || {}, p = ps[d.id] || {};
+    const row = document.createElement("div"); row.className = "ptrow";
+    const who = document.createElement("div"); who.className = "who";
+    const img = document.createElement("img"); img.src = p.avatarUrl || ""; img.alt = "";
+    const nm = document.createElement("span"); nm.textContent = (p.isMe ? "You" : p.name) || "A player";
+    who.append(img, nm);
+    const facts = document.createElement("div"); facts.className = "facts num";
+    facts.textContent = `${v.playMinutes || 0} min played · ${v.sessions || 0} sessions · ${v.recipes || 0}/7 recipes · ${v.cats || 0} cats hired · ${v.album || 0} adopted · ★${v.stars || 0} · café #${v.cafes || 1}`;
+    row.append(who, facts);
+    (Array.isArray(v.notes) ? v.notes : []).slice().reverse().forEach((n) => {
+      const nt = document.createElement("div"); nt.className = "nt";
+      nt.textContent = `${moodE[n.mood] || "💬"} ${n.text || "(no note)"}`;
+      row.append(nt);
+    });
+    box.append(row);
+  });
+}
+
+/* ================= Harvest Festival (weekend event) ================= */
+// Runs alongside the main café: its own recipe, its own currency (pumpkins), and a reward track paid out instantly.
+function eventState() {
+  const w = eventWindow();
+  if (!w.active) return null;
+  if (!S.ev || S.ev.id !== w.id) S.ev = { id: w.id, pk: 0, tot: 0, lvl: 1, cat: false, run: false, p: 0, got: [] };
+  return S.ev;
+}
+function evYield(ev) { return ev.lvl; }
+function evLvlCost(ev) { return Math.ceil(5 * Math.pow(1.45, ev.lvl - 1)); }
+function grantReward(r, label) {
+  if (r.kind === "boost") addBoost(r.mult, r.secs, `Festival ×${r.mult}`);
+  else if (r.kind === "coins") earn(rewardCoins(r.min));
+  else if (r.kind === "decor") { S.decor.harvest = true; renderDecor(); }
+  else if (r.kind === "star") { S.stars++; renderHeader(); }
+  else if (r.kind === "cat") { adopt(r.id, `${strayById(r.id).name} joined your Cat Album! ${perkText(strayById(r.id).perk)}.`); return; }
+  sfx.fanfare(); buzz([10, 40, 10]);
+  toast(`Festival reward: ${label}!`);
+}
+function checkTiers() {
+  const ev = S.ev; if (!ev) return;
+  EVENT.tiers.forEach((t, k) => {
+    if (ev.tot >= t.at && !ev.got.includes(k)) { ev.got.push(k); grantReward(t.r, t.name); }
+  });
+}
+function evTap() {
+  const ev = eventState(); if (!ev) return;
+  const pot = $("evPot");
+  pot.classList.add("squish"); setTimeout(() => pot.classList.remove("squish"), 90);
+  if (!ev.run && !ev.cat) { ev.run = true; ev.p = 0; } else ev.p += 0.12 * tapMult();
+  S.stats.taps++; questEvent("tap", 1);
+  sfx.tap(); buzz(6);
+}
+function evBuy() {
+  const ev = eventState(); if (!ev) return;
+  const c = evLvlCost(ev);
+  if (ev.pk < c) { sfx.no(); return; }
+  ev.pk -= c; ev.lvl++; sfx.buy(); buzz(10); drawEvent(true); save();
+}
+function evHire() {
+  const ev = eventState(); if (!ev || ev.cat) return;
+  if (ev.pk < EVENT.helperCost) { sfx.no(); return; }
+  ev.pk -= EVENT.helperCost; ev.cat = true; ev.run = true;
+  sfx.meow(); buzz([10, 30, 10]);
+  toast(`${EVENT.helper} is brewing lattes for the festival while you play.`);
+  drawEvent(true); save();
+}
+function stepEvent(dt) {
+  const ev = S.ev; if (!ev || !(ev.run || ev.cat) || !eventWindow().active) return;
+  ev.run = true;
+  ev.p += dt / EVENT.t;
+  if (ev.p >= 1) {
+    let cycles = 1;
+    if (ev.cat) { cycles = Math.floor(ev.p); ev.p -= cycles; } else { ev.p = 0; ev.run = false; }
+    const pk = evYield(ev) * cycles;
+    ev.pk += pk; ev.tot += pk;
+    const pos = centerOf($("evPot"));
+    if (pos.y > 0 && pos.y < innerHeight) floatAt(pos.x, pos.y - 30, `+${pk} 🎃`);
+    sfx.plink();
+    checkTiers();
+  }
+}
+function drawEvent(full) {
+  const ev = eventState();
+  $("eventCard").hidden = !ev;
+  if (!ev) return;
+  const w = eventWindow();
+  const p = ev.run || ev.cat ? ev.p : 0;
+  $("evFill").style.width = p * 100 + "%";
+  $("evPot").querySelector(".ring rect").setAttribute("stroke-dasharray", `${p * 100} 999`);
+  if (!full) return;
+  $("evTime").textContent = `Ends in ${fmtTime((w.end - Date.now()) / 1000)}`;
+  $("evLvl").textContent = "Lv " + ev.lvl;
+  $("evBal").textContent = `${fmt(ev.pk)} 🎃`;
+  $("evPay").textContent = `+${evYield(ev)} 🎃`;
+  $("evTimeLeft").textContent = ev.run || ev.cat ? fmtTime(EVENT.t * (1 - ev.p)) : "tap ☝";
+  const c = evLvlCost(ev);
+  const b = $("evBuy"); b.disabled = ev.pk < c; b.textContent = `Lv +1 · ${fmt(c)} 🎃`;
+  const h = $("evHire");
+  h.hidden = ev.cat;
+  h.disabled = ev.pk < EVENT.helperCost;
+  h.textContent = `Hire ${EVENT.helper} · ${EVENT.helperCost} 🎃`;
+  const nk = EVENT.tiers.findIndex((t, k) => !ev.got.includes(k));
+  if (nk === -1) $("evNext").innerHTML = `All festival rewards collected · ${fmt(ev.tot)} 🎃 picked`;
+  else {
+    const t = EVENT.tiers[nk];
+    $("evNext").innerHTML = `<span>Next: ${t.icon} ${t.name} at ${fmt(t.at)} 🎃 (${fmt(ev.tot)} picked)</span><div class="meter"><i style="width:${Math.min(100, ev.tot / t.at * 100)}%"></i></div>`;
+  }
+}
+function renderDecor() {
+  $("pumpkins").hidden = !S.decor.harvest;
+  document.querySelector(".scene").classList.toggle("decor", !!S.decor.harvest);
+}
+
+/* ================= themes ================= */
+function applySkin(id) {
+  const sk = skinById(id);
+  document.documentElement.setAttribute("data-skin", sk.id);
+  sky.mode = sk.sky; sky.moonCut = sk.moonCut;
+  setupSkyStars();
+}
+function skinCard(sk, { checked, footer }) {
+  const [a, b, wood] = sk.prev;
+  const orb = sk.sky === "day" || sk.sky === "sunset" ? "#fff3b0" : "#ffeab8";
+  return `<button class="skin" role="radio" aria-checked="${checked}" data-skin="${sk.id}">
+    <div class="pv" style="background:linear-gradient(${a}, ${b})"><b style="background:${orb};box-shadow:0 0 12px ${orb}"></b>
+      <span class="sw">${sk.sw.map((c) => `<span style="background:${c}"></span>`).join("")}</span><i style="background:${wood}"></i></div>
+    <div class="meta"><strong>${sk.name}</strong><span>${sk.tag}</span>${footer || ""}</div>
+  </button>`;
+}
+
+/* ================= sheets ================= */
+let sheetKind = null, confirmMove = false, confirmSkin = null, pickSel = null, afterPick = null;
+function closeSheet() {
+  const v = document.querySelector(".veil"); if (v) v.remove();
+  sheetKind = null; confirmMove = false; confirmSkin = null;
+  setTab(null);
+}
+function openSheet(kind, extra) {
+  const old = document.querySelector(".veil"); if (old) old.remove();
+  sheetKind = kind;
+  setTab(kind);
+  const locked = kind === "away" || kind === "pick";
+  const veil = document.createElement("div");
+  veil.className = "veil" + (kind === "away" ? " mid" : "");
+  veil.addEventListener("pointerdown", (e) => { if (e.target === veil && !locked) closeSheet(); });
+  const sh = document.createElement("div");
+  sh.className = "sheet" + (kind === "away" ? " center" : "");
+  sh.setAttribute("role", "dialog"); sh.setAttribute("aria-modal", "true");
+  const head = (title, sub) => `<div class="sheet-head"><div><h3>${title}</h3><p class="sub">${sub}</p></div><button class="iconbtn" data-close aria-label="Close">✕</button></div>`;
+
+  if (kind === "quests") {
+    ensureQuests();
+    sh.innerHTML = head("Today's quests", `New quests in ${fmtTime(msToMidnight() / 1000)}. Finish all three for ×3 tips.`) +
+      `<div class="stack">${S.quests.list.map((q, k) => {
+        const pr = Math.min(q.target, questProg(q)), ok = pr >= q.target;
+        return `<div class="quest ${q.done ? "done" : ""}"><div><div class="qt">${q.text}</div><div class="qr num">${fmt(pr)} / ${fmt(q.target)} · reward: ${q.reward === "boost" ? "×2 tips for 5m" : "5 min of tips"}</div></div>
+          <button data-q="${k}" ${q.done || !ok ? "disabled" : ""}>${q.done ? "Done" : "Claim"}</button>
+          <div class="qbar"><i style="width:${pr / q.target * 100}%"></i></div></div>`;
+      }).join("")}</div>
+      <p class="tiny" style="margin-top:12px">${S.quests.bonus ? "Bonus claimed. See you tomorrow!" : "Bonus for all three: ×3 tips for 10 minutes."}</p>`;
+  } else if (kind === "daily") {
+    const idx = dailyIndex(), avail = dailyAvailable();
+    const streak = S.daily.last === dayKey() || S.daily.last === yesterdayKey() ? S.daily.streak : 0;
+    sh.innerHTML = head("Daily treats", `Come back every day. Missing a day restarts the week. Streak: ${streak} day${streak === 1 ? "" : "s"}.`) +
+      `<div class="days">${DAILY.map((d, k) => {
+        const got = k < idx || (!avail && k === idx);
+        return `<div class="day ${k === 6 ? "big" : ""} ${k === idx && avail ? "today" : ""} ${got ? "got" : ""}"><span class="d">Day ${k + 1}</span><span class="g">${d.icon}</span><span class="v">${d.label}</span></div>`;
+      }).join("")}</div>
+      <button class="btn" id="claimDaily" ${avail ? "" : "disabled"}>${avail ? "Claim day " + (idx + 1) : "Come back in " + fmtTime(msToMidnight() / 1000)}</button>`;
+  } else if (kind === "move") {
+    const gain = pendingStars(), sp = starProgress();
+    const nextStreet = STREETS[(S.cafe + 1) % STREETS.length];
+    sh.innerHTML = head("Open a new café", "Move to a new street and start fresh. Moon Stars stay with you, and every star adds +10% to all tips forever.") +
+      `<div class="starbox num">
+        <div class="starrow"><span>Moon Stars now</span><span>★ ${S.stars} (+${Math.round(S.stars * STAR_BONUS * 100)}%)</span></div>
+        <div class="starrow"><span>Tips earned, all cafés</span><span>${fmt(S.all)}</span></div>
+        <div class="starrow"><span>Stars you'd gain</span><span style="color:var(--star)">+${gain}</span></div>
+        <div class="meter"><i style="width:${sp.frac * 100}%"></i></div>
+        <div class="tiny">Star #${sp.next} at ${fmt(sp.need)} total tips</div>
+      </div>
+      <p class="tiny" style="margin:0 0 12px">You'll lose your tips, recipe levels and cats. Daily streak, quests and your café theme carry over.</p>
+      <button class="btn ${confirmMove ? "danger" : ""}" id="moveBtn" ${gain < 1 ? "disabled" : ""}>${gain < 1 ? `Earn ${fmt(Math.max(0, tipsForStars(S.pstars + 1) - S.all))} more tips to move` : confirmMove ? `Yes, move to ${nextStreet}` : `Move to ${nextStreet} (+${gain} ★)`}</button>`;
+  } else if (kind === "away") {
+    const { secs, amt } = extra;
+    sh.innerHTML = `<div style="display:flex;justify-content:center">${catSit("mochi", 84)}</div><h3>Welcome back!</h3><p class="sub">Your cats kept brewing for ${fmtTime(secs)}${secs >= offlineCap() - 1 ? ` (the most they'll work alone is ${fmtTime(offlineCap())})` : ""}.</p>
+      <div class="away-amt num"><span class="coin"></span><span id="awayAmt">0</span></div>
+      <button class="btn" id="collectBtn" style="margin-top:14px">Collect</button>`;
+    const t0 = performance.now();
+    const step = (t) => { const k = Math.min(1, (t - t0) / 900); const e = $("awayAmt"); if (!e) return; e.textContent = fmt(amt * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  } else if (kind === "pick") {
+    sh.innerHTML = `<h3>Choose your café's look</h3><p class="sub">Tap a style to try it on. You can change it later in Settings, but it will cost tips.</p>
+      <div class="skins" role="radiogroup" aria-label="Café theme">${SKINS.map((sk) => skinCard(sk, { checked: sk.id === pickSel })).join("")}</div>
+      <button class="btn" id="pickBtn" style="margin-top:16px">Open my café</button>`;
+  } else if (kind === "settings") {
+    const cost = themeCost();
+    sh.innerHTML = head("Settings", "Make the café yours.") +
+      `<div>
+        ${switchRow("music", "Music", "A soft lo-fi café loop", S.music)}
+        ${switchRow("muted", "Sound effects", "Brewing plinks, chimes and meows", !S.muted)}
+        ${switchRow("vibe", "Vibration", "Little buzzes on taps and rewards (phones that support it)", S.vibe)}
+        ${switchRow("pops", "Floating numbers", "Show +tips popping out of each recipe", S.pops)}
+      </div>
+      <h4>Café theme</h4>
+      <p class="tiny" style="margin:-2px 0 10px">Changing the theme costs ${fmt(cost)} tips (about 15 minutes of earnings). You have ${fmt(S.coins)}.</p>
+      <div class="skins" role="radiogroup" aria-label="Café theme">${SKINS.map((sk) => {
+        const cur = sk.id === S.skin;
+        let foot;
+        if (cur) foot = `<em class="cur">✓ Your café</em>`;
+        else if (confirmSkin === sk.id) foot = `<em>Tap again to pay ${fmt(cost)}</em>`;
+        else foot = `<em><span class="coin sm"></span>${fmt(cost)}${S.coins < cost ? " · not enough tips" : ""}</em>`;
+        return skinCard(sk, { checked: cur, footer: foot }).replace('class="skin"', `class="skin${confirmSkin === sk.id ? " confirm" : ""}"`);
+      }).join("")}</div>
+      ${pt.db && pt.uid ? `<h4>Playtest feedback</h4>
+      <p class="tiny" style="margin:-2px 0 10px">Tell the person who made this game what you think. Sending also shares your game progress (tips, recipes, cats, play time) with them, and the game keeps it up to date while you play.</p>
+      <div class="moods" role="group" aria-label="How do you like it?">
+        ${[["meh", "😕"], ["ok", "🙂"], ["love", "😍"]].map(([k, e]) => `<button data-mood="${k}" aria-pressed="${ptMood === k}" aria-label="${k}">${e}</button>`).join("")}
+      </div>
+      <label class="tiny" for="ptNote" style="display:block;margin-bottom:4px">What did you like, and what felt slow or confusing?</label>
+      <textarea class="note" id="ptNote" maxlength="600" placeholder="The cats are cute, but I got stuck waiting for…"></textarea>
+      <button class="btn" id="ptSend" style="margin-top:8px">Send feedback</button>
+      ${S.notes.length ? `<p class="tiny" style="margin-top:6px">You've sent ${S.notes.length} note${S.notes.length > 1 ? "s" : ""}. Thank you!</p>` : ""}` : ""}
+      ${pt.owner ? `<h4>Your playtest</h4><button class="btn alt" id="ptResults">See what players shared</button>` : ""}
+      <h4>Progress</h4>
+      <button class="btn alt" id="resetOpen">Reset progress…</button>
+      <p class="tiny" style="margin-top:12px">Moonbean Café prototype · progress saves on this device.</p>`;
+  } else if (kind === "shop") {
+    const left = UPGRADES.filter((u) => !hasUpg(u.id) && (u.kind !== "recipe" || S.st[u.r].lvl > 0));
+    const owned = S.upg.length;
+    sh.innerHTML = head("Café shop", `Upgrades for this café. They reset when you open a new café. Owned: ${owned}/${UPGRADES.length}.`) +
+      `<div class="stack">${left.slice(0, 10).map((u) => `<div class="shopitem"><span class="si">${u.icon}</span><div><strong>${u.name}</strong><span>${u.desc}</span></div>
+        <button class="num" data-u="${u.id}" ${S.coins < u.cost ? "disabled" : ""}><span class="coin sm"></span>${fmt(u.cost)}</button></div>`).join("") ||
+        `<p class="tiny">You bought everything on offer. Unlock more recipes for more upgrades.</p>`}</div>
+      ${left.length > 10 ? `<p class="tiny" style="margin-top:10px">${left.length - 10} more upgrades appear as you buy these.</p>` : ""}`;
+  } else if (kind === "album") {
+    S.albumSeen = Object.keys(S.album).length;
+    const n = STRAYS.filter((s) => S.album[s.id]).length;
+    const perks = ["tips", "visitor", "tap", "offline"].map((t) => albumPerk(t) ? perkText({ t, v: albumPerk(t) }) : "").filter(Boolean).join(" · ");
+    sh.innerHTML = head("Cat Album", "Strays who visit sometimes decide to stay. Each one gives a bonus that lasts forever, even after you move cafés.") +
+      `<div class="albumsum num"><span>${n} / ${STRAYS.length} cats</span><span style="color:var(--mint-deep)">${perks || "No bonuses yet"}</span></div>
+      <div class="album">${STRAYS.map((s) => {
+        const got = S.album[s.id];
+        return `<div class="stray ${got ? "" : "missing"} ${s.event ? "event" : ""}"><div class="ph">${catSit(s.look, 62)}</div>
+          <strong>${got ? s.name : "???"}</strong><span>${got ? perkText(s.perk) : s.event ? "Harvest Festival reward" : "Visits sometimes"}</span></div>`;
+      }).join("")}</div>`;
+  } else if (kind === "event") {
+    const ev = eventState();
+    if (!ev) { sh.innerHTML = head("Harvest Festival", "The festival is over for now. It's back next weekend!"); }
+    else sh.innerHTML = head("Festival rewards", `Brew Pumpkin Spice Lattes and greet visiting cats to pick pumpkins. Rewards arrive the moment you reach them. Ends in ${fmtTime((eventWindow().end - Date.now()) / 1000)}.`) +
+      `<div class="albumsum num"><span>Pumpkins picked</span><span>${fmt(ev.tot)} 🎃</span></div>
+      <div class="stack">${EVENT.tiers.map((t, k) => {
+        const got = ev.got.includes(k);
+        return `<div class="tier ${got ? "got" : ""}"><span class="ti">${t.icon}</span><div><strong>${t.name}</strong><span class="num">at ${fmt(t.at)} 🎃</span></div><span class="ts num">${got ? "✓ Got it" : fmt(Math.max(0, t.at - ev.tot)) + " to go"}</span></div>`;
+      }).join("")}</div>`;
+  } else if (kind === "results") {
+    sh.innerHTML = head("Playtest results", "What your players have shared. Only you can see this.") + `<div class="stack" id="ptList"><p class="tiny">Loading…</p></div>`;
+  } else if (kind === "reset") {
+    sh.innerHTML = head("Reset progress?", "This wipes everything on this device, including Moon Stars, your streak and your café theme.") +
+      `<div class="stack"><button class="btn danger" id="doReset">Erase and start over</button><button class="btn alt" id="keepBtn">Keep playing</button></div>`;
+  }
+  veil.appendChild(sh);
+  document.body.appendChild(veil);
+
+  sh.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", closeSheet));
+  sh.querySelectorAll("[data-u]").forEach((b) => b.addEventListener("click", () => buyUpgrade(b.dataset.u)));
+  sh.querySelectorAll("[data-mood]").forEach((b) => b.addEventListener("click", () => {
+    ptMood = b.dataset.mood;
+    sh.querySelectorAll("[data-mood]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  }));
+  if (kind === "results") loadResults();
+  sh.querySelectorAll("[data-q]").forEach((b) => b.addEventListener("click", () => claimQuest(+b.dataset.q)));
+  const on = (sel, fn) => { const el = sh.querySelector(sel); if (el) el.addEventListener("click", fn); };
+  on("#claimDaily", claimDaily);
+  on("#ptSend", sendFeedback);
+  on("#ptResults", () => openSheet("results"));
+  on("#moveBtn", () => { if (!confirmMove) { confirmMove = true; openSheet("move"); confirmMove = true; } else relocate(); });
+  on("#resetOpen", () => openSheet("reset"));
+  on("#keepBtn", () => openSheet("settings"));
+  on("#doReset", () => {
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+    S = freshState(); ensureQuests(); closeSheet(); renderHeader(); buildList();
+    pickSel = SKINS[0].id; applySkin(pickSel); openSheet("pick");
+  });
+  on("#pickBtn", () => {
+    S.skin = pickSel; applySkin(S.skin); save();
+    sfx.chime(); buzz([10, 30, 10]);
+    closeSheet();
+    toast(`Welcome to your ${skinById(S.skin).name} café!`);
+    if (afterPick) { const f = afterPick; afterPick = null; setTimeout(f, 350); }
+  });
+  sh.querySelectorAll(".skin").forEach((b) => b.addEventListener("click", () => {
+    const id = b.dataset.skin;
+    if (kind === "pick") {
+      pickSel = id; applySkin(id); sfx.tap(); buzz(6);
+      sh.querySelectorAll(".skin").forEach((x) => x.setAttribute("aria-checked", String(x === b)));
+      return;
+    }
+    if (id === S.skin) return;
+    const cost = themeCost();
+    if (S.coins < cost) { sfx.no(); toast(`You need ${fmt(cost - S.coins)} more tips to switch themes.`); return; }
+    if (confirmSkin !== id) { confirmSkin = id; sfx.tap(); openSheet("settings"); return; }
+    S.coins -= cost; S.skin = id; confirmSkin = null;
+    applySkin(id); save(); refreshCards();
+    sfx.chime(); buzz([10, 30, 10]);
+    toast(`Redecorated: ${skinById(id).name}`);
+    openSheet("settings");
+  }));
+  sh.querySelectorAll(".switch").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.key;
+    if (k === "muted") S.muted = !S.muted; else S[k] = !S[k];
+    if (k === "music") syncMusic();
+    save(); openSheet("settings");
+    if (k === "muted" && !S.muted) sfx.tap();
+    if (k === "vibe" && S.vibe) buzz(20);
+  }));
+  const cb = sh.querySelector("#collectBtn");
+  if (cb) cb.addEventListener("click", () => {
+    const p = centerOf(cb);
+    earn(extra.amt); sfx.chime(); buzz([10, 40, 10]); sparks(p.x, p.y, 20);
+    floatAt(p.x, p.y - 40, "+" + fmt(extra.amt), true);
+    closeSheet(); refreshCards(); save();
+  });
+}
+function switchRow(key, label, desc, on) {
+  return `<div class="row"><div class="rl"><strong id="lbl-${key}">${label}</strong><span>${desc}</span></div>
+    <button class="switch" role="switch" aria-checked="${on}" aria-labelledby="lbl-${key}" data-key="${key}"></button></div>`;
+}
+function setTab(t) { document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-expanded", String(b.dataset.tab === t))); }
+
+/* ================= header ================= */
+function renderHeader() {
+  $("brand").innerHTML = `<b>Moonbean Café</b> · ${STREETS[S.cafe % STREETS.length]}`;
+  $("starChip").textContent = "★ " + S.stars;
+  document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === S.mode)));
+}
+let shownCoins = 0;
+function drawHeader() {
+  shownCoins += (S.coins - shownCoins) * 0.25;
+  if (Math.abs(S.coins - shownCoins) < 1) shownCoins = S.coins;
+  $("coins").textContent = fmt(shownCoins);
+  const ps = perSec();
+  $("rate").innerHTML = ps > 0 ? `<b>+${fmt(ps)}</b>/s` : (S.tut >= 1 ? "hire a cat to earn while away" : "tap a recipe to brew");
+}
+function drawBadges() {
+  ensureQuests();
+  const q = questsReady();
+  $("qDot").hidden = !q; $("qDot").textContent = q || "";
+  $("dDot").hidden = !dailyAvailable();
+  $("mDot").hidden = pendingStars() < 1;
+  $("sDot").hidden = !shopReady();
+  $("aDot").hidden = Object.keys(S.album).length <= S.albumSeen;
+}
+
+/* ================= window sky canvas ================= */
+const sky = { stars: [], clouds: [], c: null, x: null, w: 0, h: 0, mode: "night", moonCut: "#36295f" };
+function setupSkyStars() {
+  const n = sky.mode === "night" ? 42 : sky.mode === "dusk" ? 20 : sky.mode === "sunset" ? 6 : 0;
+  sky.stars = Array.from({ length: n }, () => ({ x: Math.random() * sky.w, y: Math.random() * (sky.h - 40), s: Math.random() * 1.4 + .4, ph: Math.random() * 6 }));
+  sky.clouds = sky.mode === "day" || sky.mode === "sunset"
+    ? Array.from({ length: 3 }, (_, k) => ({ x: Math.random() * sky.w, y: 30 + k * 18 + Math.random() * 8, s: 0.7 + Math.random() * 0.5, v: 4 + Math.random() * 5 }))
+    : [];
+}
+function setupSky() {
+  sky.c = $("sky"); sky.x = sky.c.getContext("2d");
+  const resize = () => {
+    const r = sky.c.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
+    sky.w = r.width; sky.h = r.height;
+    sky.c.width = r.width * d; sky.c.height = r.height * d;
+    sky.x.setTransform(d, 0, 0, d, 0, 0);
+    setupSkyStars();
+  };
+  resize(); window.addEventListener("resize", resize);
+}
+function cloud(x, y, s, col) {
+  const c = sky.x; c.fillStyle = col; c.beginPath();
+  c.arc(x, y, 9 * s, 0, 7); c.arc(x + 10 * s, y - 5 * s, 11 * s, 0, 7); c.arc(x + 22 * s, y, 9 * s, 0, 7); c.arc(x + 11 * s, y + 3 * s, 10 * s, 0, 7);
+  c.fill();
+}
+let lastSkyT = 0;
+function drawSky(t) {
+  const { x, w, h, mode } = sky; if (!x) return;
+  const dt = lastSkyT ? Math.min(0.1, (t - lastSkyT) / 1000) : 0; lastSkyT = t;
+  x.clearRect(0, 0, w, h);
+  for (const s of sky.stars) {
+    x.globalAlpha = (mode === "night" ? 1 : .55) * (.35 + .65 * (0.5 + 0.5 * Math.sin(t / 900 + s.ph)));
+    x.fillStyle = "#fff6d8"; x.beginPath(); x.arc(s.x, s.y, s.s, 0, 7); x.fill();
+  }
+  x.globalAlpha = 1;
+  if (mode === "night" || mode === "dusk") {
+    const mx = w * 0.78, my = 36;
+    const g = x.createRadialGradient(mx, my, 6, mx, my, 46); g.addColorStop(0, "rgba(255,236,180,.35)"); g.addColorStop(1, "rgba(255,236,180,0)");
+    x.fillStyle = g; x.beginPath(); x.arc(mx, my, 46, 0, 7); x.fill();
+    x.fillStyle = "#ffeab8"; x.beginPath(); x.arc(mx, my, 16, 0, 7); x.fill();
+    x.fillStyle = "rgba(220,190,130,.35)"; x.beginPath(); x.arc(mx - 6, my + 4, 3, 0, 7); x.arc(mx - 2, my - 7, 2, 0, 7); x.fill();
+    x.fillStyle = sky.moonCut; x.beginPath(); x.arc(mx + 8, my - 4, 14, 0, 7); x.fill();
+  } else {
+    const sunset = mode === "sunset";
+    const mx = w * (sunset ? 0.72 : 0.8), my = sunset ? h - 34 : 34, r = sunset ? 20 : 15;
+    const g = x.createRadialGradient(mx, my, r * .5, mx, my, r * 4);
+    g.addColorStop(0, sunset ? "rgba(255,220,150,.75)" : "rgba(255,250,210,.8)"); g.addColorStop(1, "rgba(255,240,200,0)");
+    x.fillStyle = g; x.beginPath(); x.arc(mx, my, r * 4, 0, 7); x.fill();
+    x.fillStyle = sunset ? "#ffe0a0" : "#fff6c8"; x.beginPath(); x.arc(mx, my, r, 0, 7); x.fill();
+    for (const c of sky.clouds) {
+      c.x += c.v * dt; if (c.x > w + 20) c.x = -50;
+      cloud(c.x, c.y, c.s, sunset ? "rgba(255,236,236,.75)" : "rgba(255,255,255,.9)");
+    }
+  }
+  // autumn leaves drift past during the Harvest Festival (and forever once you've won the decorations)
+  if (S.decor.harvest || (S.ev && eventWindow().active)) {
+    if (!sky.leaves) sky.leaves = Array.from({ length: 7 }, () => ({ x: Math.random() * w, y: Math.random() * h, s: 3 + Math.random() * 3, v: 10 + Math.random() * 14, ph: Math.random() * 6, c: ["#e0782a", "#c9502a", "#e8a33a"][Math.floor(Math.random() * 3)] }));
+    for (const l of sky.leaves) {
+      l.y += l.v * dt; l.x += Math.sin(t / 700 + l.ph) * 12 * dt;
+      if (l.y > h - 20) { l.y = -8; l.x = Math.random() * w; }
+      x.save(); x.translate(l.x, l.y); x.rotate(Math.sin(t / 500 + l.ph) * 1.2);
+      x.fillStyle = l.c; x.beginPath(); x.ellipse(0, 0, l.s, l.s * 0.55, 0, 0, 7); x.fill();
+      x.strokeStyle = "rgba(90,40,10,.5)"; x.lineWidth = .6; x.beginPath(); x.moveTo(-l.s, 0); x.lineTo(l.s, 0); x.stroke();
+      x.restore();
+    }
+  }
+  // string lights across the top of the window
+  const n = 9, day = mode === "day";
+  x.strokeStyle = "rgba(0,0,0,.35)"; x.lineWidth = 1.2; x.beginPath();
+  for (let k = 0; k <= 40; k++) { const px = k / 40 * w; x.lineTo(px, 8 + Math.sin(k / 40 * Math.PI) * 14); } x.stroke();
+  const cols = ["#ffb547", "#ff8fa8", "#7fe0bd", "#9fb4ff"];
+  for (let k = 0; k < n; k++) {
+    const f = (k + .5) / n, px = f * w, py = 8 + Math.sin(f * Math.PI) * 14 + 5;
+    const on = (day ? .45 : .6) + (day ? .15 : .4) * Math.sin(t / 600 + k * 1.3);
+    x.globalAlpha = 1; x.fillStyle = "#3a3030"; x.fillRect(px - 1.5, py - 6, 3, 3);
+    x.globalAlpha = on; x.fillStyle = cols[k % 4];
+    x.beginPath(); x.ellipse(px, py, 3.2, 4.2, 0, 0, 7); x.fill();
+    if (!day) { x.globalAlpha = on * .25; x.beginPath(); x.arc(px, py, 10, 0, 7); x.fill(); }
+  }
+  x.globalAlpha = 1;
+}
+
+/* ================= main loop ================= */
+let last = performance.now(), slow = 0, saveT = 0;
+function step(dt) {
+  S.st.forEach((s, i) => {
+    if (s.lvl === 0) return;
+    const r = RECIPES[i];
+    if (!(s.run || s.cat)) return;
+    s.run = true;
+    s.p += dt / r.t;
+    if (s.p >= 1) {
+      let cycles = 1;
+      if (s.cat) { cycles = Math.floor(s.p); s.p -= cycles; }
+      else { s.p = 0; s.run = false; }
+      const amt = payout(i) * cycles;
+      earn(amt);
+      const c = cards[i];
+      c.acc += amt;
+      const now = performance.now();
+      if (now - c.lastFloat > 260 && !c.el.hidden) {
+        const p = centerOf(c.pot);
+        if (p.y > 0 && p.y < window.innerHeight) floatAt(p.x + (Math.random() * 24 - 12), p.y - 30, "+" + fmt(c.acc));
+        c.acc = 0; c.lastFloat = now;
+        sfx.plink();
+      }
+    }
+  });
+}
+function frame(t) {
+  let dt = (t - last) / 1000; last = t;
+  if (dt > 1) {
+    // frames were paused without the page being hidden (throttled tab, frozen webview): pay the cats for the gap
+    const gap = Math.min(dt, offlineCap());
+    const amt = perSec() * gap;
+    if (amt > 0) earn(amt);
+    dt = 0.05;
+  }
+  step(dt); stepEvent(dt);
+  if (!document.hidden) S.playSecs += dt;
+  drawCards(); drawEvent(false); drawHeader(); drawSky(t);
+  slow += dt; saveT += dt;
+  if (slow > 0.2) {
+    slow = 0;
+    refreshCards(); drawBoosts(); drawBadges(); drawEvent(true);
+    syncPlaytest(false).catch(() => {});
+    if (!visitorEl && Date.now() > nextVisitor) spawnVisitor();
+  }
+  if (saveT > 5) { saveT = 0; save(); }
+  requestAnimationFrame(frame);
+}
+
+/* ================= offline ================= */
+function offlineHaul(since) {
+  const secs = Math.min(offlineCap(), (Date.now() - since) / 1000);
+  if (secs < 30) return null;
+  const amt = perSec(false) * secs;
+  S.st.forEach((s) => { if (s.run && !s.cat) s.p = Math.min(1, s.p + secs); });
+  S.boosts = S.boosts.filter((b) => b.until > Date.now());
+  return amt >= 1 ? { secs, amt } : null;
+}
+function applyOffline(since) {
+  const haul = offlineHaul(since);
+  if (haul && sheetKind !== "pick") openSheet("away", haul);
+}
+
+/* ================= wiring ================= */
+let hiddenAt = 0;
+function wire() {
+  $("settingsBtn").addEventListener("click", () => openSheet("settings"));
+  document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => { S.mode = b.dataset.mode; renderHeader(); refreshCards(); save(); }));
+  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => openSheet(b.dataset.tab)));
+  $("evPot").addEventListener("pointerdown", (e) => { e.preventDefault(); evTap(); });
+  $("evPot").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); evTap(); } });
+  $("evBuy").addEventListener("click", evBuy);
+  $("evHire").addEventListener("click", evHire);
+  $("evRewards").addEventListener("click", () => openSheet("event"));
+  // browsers only allow sound after the first tap
+  const firstTouch = () => { syncMusic(); document.removeEventListener("pointerdown", firstTouch, true); };
+  document.addEventListener("pointerdown", firstTouch, true);
+  document.addEventListener("visibilitychange", () => {
+    if (A) syncMusic();
+    if (document.hidden) { save(); hiddenAt = Date.now(); }
+    else if (hiddenAt) { const h = hiddenAt; hiddenAt = 0; last = performance.now(); applyOffline(h); }
+  });
+  window.addEventListener("pagehide", save);
+  try { window.claude?.hot?.snapshot?.(() => (save(), JSON.parse(JSON.stringify(S)))); } catch (e) {}
+}
+
+function start(hotData) {
+  const had = (hotData && hotData.v === 1) ? (S = Object.assign(freshState(), hotData), true) : load();
+  const lastSeen = S.seen; // read before anything saves (saving stamps a new time)
+  $("sleepCat").innerHTML = catSleep("mochi");
+  setupSky();
+  applySkin(S.skin || SKINS[0].id);
+  ensureQuests();
+  S.sessions++;
+  renderHeader(); buildList(); wire(); renderDecor(); drawEvent(true);
+  initPlaytest();
+  shownCoins = S.coins;
+  const haul = had ? offlineHaul(lastSeen) : null;
+  if (!S.skin) {
+    // first launch (or a save from before themes existed): pick a look first, then show any offline haul
+    pickSel = SKINS[0].id;
+    afterPick = haul ? () => openSheet("away", haul) : null;
+    openSheet("pick");
+  } else if (haul) openSheet("away", haul);
+  requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
+}
+const hot = window.claude && window.claude.hot;
+if (hot && hot.ready) hot.ready(start); else start(hot && hot.data);
+})();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+</script>
+</body>
+</html>

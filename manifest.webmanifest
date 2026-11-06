@@ -1,0 +1,16 @@
+{
+  "name": "Moonbean Café",
+  "short_name": "Moonbean",
+  "description": "A cozy idle game: run a café staffed by cats.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1b1630",
+  "theme_color": "#1b1630",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
