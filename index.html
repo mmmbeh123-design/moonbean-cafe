@@ -146,7 +146,13 @@ button:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 .card { background: var(--night-2); border-radius: var(--r); padding: 12px; display: grid; grid-template-columns: 72px 1fr; gap: 12px; position: relative; }
 :root[data-skin="sakura"] .card, :root[data-skin="latte"] .card { box-shadow: 0 1px 0 var(--line), 0 6px 18px -12px rgba(80,40,20,.35); }
 .card.locked { background: color-mix(in srgb, var(--night-2) 60%, var(--night)); border: 2px dashed var(--line); box-shadow: none; }
-.card.mystery { grid-template-columns: 1fr; text-align: center; color: var(--muted); font-weight: 800; padding: 16px; }
+.card.mystery { grid-template-columns: 1fr; text-align: center; color: var(--muted); font-weight: 800; padding: 16px; width: 100%; font: inherit; font-weight: 800; cursor: default; }
+.card.mystery.next { border: 2px dashed var(--line); background: color-mix(in srgb, var(--night-2) 70%, var(--night)); cursor: pointer; gap: 8px; }
+.mystery .nx-title { color: var(--cream); font-weight: 900; }
+.mystery .nx-items { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.mystery .nx-items span { background: var(--night-3); color: var(--cream); border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 800; }
+.mystery .nx-hint { font-size: 12px; color: var(--lantern-deep); font-weight: 900; }
+:root:not([data-skin="sakura"]):not([data-skin="latte"]) .mystery .nx-hint { color: var(--lantern); }
 .pot { width: 72px; height: 72px; border-radius: 22px; background: var(--night-3); display: grid; place-items: center; font-size: 38px; position: relative; transition: transform .08s; }
 .pot:active, .pot.squish { transform: scale(.9); }
 .pot .ring { position: absolute; inset: 0; color: var(--mint-deep); }
@@ -325,6 +331,26 @@ button:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 .stray.event { outline: 2px dashed #d98a2b; outline-offset: -2px; }
 .albumsum { display: flex; justify-content: space-between; gap: 10px; font-weight: 900; margin-bottom: 10px; }
 
+/* ---------- new café screen ---------- */
+.mv-hero { background: var(--night-3); border-radius: 18px; padding: 16px; text-align: center; margin-bottom: 12px; }
+.mv-big { font-family: var(--font-display); font-size: 44px; line-height: 1.1; color: var(--star); }
+.mv-sub { font-weight: 700; color: var(--muted); margin-top: 4px; }
+.mv-sub b { color: var(--cream); }
+.mv-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+.mv-new { margin-bottom: 12px; }
+.mv-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.mv-items span { background: var(--night-3); border-radius: 999px; padding: 5px 11px; font-size: 13px; font-weight: 800; }
+.mv-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.mv-cols > div { background: var(--night-3); border-radius: 14px; padding: 10px 12px; }
+.mv-cols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; font-weight: 800; }
+
+/* ---------- feedback card ---------- */
+.ask-cat { display: flex; justify-content: center; animation: hop .9s ease-in-out 2; }
+.faces { display: flex; justify-content: center; gap: 12px; margin-top: 12px; }
+.faces button { width: 76px; height: 76px; border-radius: 22px; background: var(--night-3); font-size: 40px; transition: transform .12s; }
+.faces button:hover, .faces button:focus-visible { transform: scale(1.08); }
+.faces button:active { transform: scale(.92); }
+
 /* ---------- playtest ---------- */
 .moods { display: flex; gap: 8px; margin-bottom: 8px; }
 .moods button { flex: 1; height: 44px; border-radius: 12px; background: var(--night-3); font-size: 22px; border: 2px solid transparent; }
@@ -459,15 +485,26 @@ const RECIPES = [
   { id: "matcha",    name: "Matcha Latte",     icon: "🍵", cost: 1500,  g: 1.14, rev: 300,   t: 8,   cat: "Pistachio", catCost: 60000, look: "pistachio" },
   { id: "cake",      name: "Strawberry Cake",  icon: "🍰", cost: 25000, g: 1.13, rev: 3000,  t: 15,  cat: "Peaches",   catCost: 1.5e6, look: "peaches" },
   { id: "pancake",   name: "Pancake Tower",    icon: "🥞", cost: 4e5,   g: 1.13, rev: 30000, t: 30,  cat: "Maple",     catCost: 4e7,   look: "maple" },
-  { id: "parfait",   name: "Moon Parfait",     icon: "🍨", cost: 8e6,   g: 1.12, rev: 3e5,   t: 60,  cat: "Luna",      catCost: 1e9,   look: "luna" },
-  { id: "tea",       name: "Midnight Tea Set", icon: "🫖", cost: 1.6e8, g: 1.12, rev: 3e6,   t: 120, cat: "Earl",      catCost: 3e10,  look: "earl" },
+  // from here on: cost ×4 and payout ×3.5 per recipe, cat helper = 80× the unlock cost (multi-café simulation:
+  // about one new recipe per café, all 13 by roughly café 9, no runaway)
+  { id: "parfait",   name: "Moon Parfait",     icon: "🍨", cost: 8e6,    g: 1.12, rev: 3e5,    t: 60,  cat: "Luna",      catCost: 6.4e8,  look: "luna" },
+  { id: "tea",       name: "Midnight Tea Set", icon: "🫖", cost: 3.2e7,  g: 1.12, rev: 1.05e6, t: 120, cat: "Earl",      catCost: 2.6e9,  look: "earl" },
+  // later cafés: each new street adds two more recipes to the menu (see recipeCap)
+  { id: "donut",     name: "Glazed Donuts",    icon: "🍩", cost: 1.3e8,  g: 1.12, rev: 3.7e6,  t: 150, cat: "Sprinkles", catCost: 1e10,   look: "tortie" },
+  { id: "pie",       name: "Apple Pie",        icon: "🥧", cost: 5.1e8,  g: 1.11, rev: 1.3e7,  t: 180, cat: "Cinnamon",  catCost: 4.1e10, look: "cream" },
+  { id: "hotcocoa",  name: "Hot Cocoa Bar",    icon: "🍫", cost: 2e9,    g: 1.11, rev: 4.5e7,  t: 210, cat: "Fudge",     catCost: 1.6e11, look: "smoke" },
+  { id: "dango",     name: "Moonlight Dango",  icon: "🍡", cost: 8.2e9,  g: 1.11, rev: 1.6e8,  t: 240, cat: "Yuki",      catCost: 6.6e11, look: "blue" },
+  { id: "cupcake",   name: "Galaxy Cupcakes",  icon: "🧁", cost: 3.3e10, g: 1.10, rev: 5.5e8,  t: 270, cat: "Nova",      catCost: 2.6e12, look: "tux" },
+  { id: "bigcake",   name: "Celebration Cake", icon: "🎂", cost: 1.3e11, g: 1.10, rev: 1.9e9,  t: 300, cat: "Confetti",  catCost: 1e13,   look: "lilac" },
 ];
+const FIRST_CAFE_RECIPES = 5, RECIPES_PER_MOVE = 2;
 const MILESTONES = [25, 50, 100, 200, 300, 400, 500, 750, 1000];
 const STREETS = ["Willow Lane", "Harbor Street", "Maple Hill", "Lantern Row", "Fern Gardens", "Comet Square", "Velvet Alley", "Starfall Pier"];
 const OFFLINE_CAP = 2 * 3600;
 const STAR_BONUS = 0.10;
 const STAR_UNIT = 1e7;
 const STAR_K = 3;
+const STAR_P = 0.4;
 const SAVE_KEY = "moonbean-cafe-v1";
 const DAILY = [
   { kind: "coins", min: 5,  icon: "🪙", label: "5 min of tips" },
@@ -503,6 +540,7 @@ const LOOKS = {
   cream:     { fur: "#f0c98e", shade: "#c79a5e", light: "#fde6c0", pattern: "tabby", stripe: "#d39a55", eye: "#c8a23a", chest: "#fff1dc", nose: "#e49a9a" },
   blue:      { fur: "#7f8fa3", shade: "#55637a", light: "#a9b6c6", pattern: "solid", eye: "#7fd06a", chest: "#93a2b4", nose: "#6f6a80" },
   tortie:    { fur: "#3b2c26", shade: "#1f1612", light: "#5c463b", pattern: "calico", stripe: "#c8763a", patch2: "#e7a35c", eye: "#e2b13a", chest: "#5a463c", nose: "#6a4a46" },
+  lilac:     { fur: "#ddd5ea", shade: "#a99cbf", light: "#f5f1fb", pattern: "point", stripe: "#7d6a9a", eye: "#6fb6ea", chest: "#f8f5fc", nose: "#c98b98" },
   pumpkin:   { fur: "#ef8a2c", shade: "#b4551a", light: "#ffc27a", pattern: "tabby", stripe: "#b04c14", eye: "#5bbf4a", chest: "#ffe1bd", nose: "#d9727c" },
 };
 
@@ -530,6 +568,7 @@ function perkText(p) {
   return `+${Math.round(p.v / 60)}m away time`;
 }
 const ADOPT_CHANCE = 0.3;
+const FEEDBACK_URL = "https://mmmbeh123-design.itch.io/moonbean-cafe";
 
 // Shop upgrades: bought with tips, reset when you open a new café
 const UPGRADES = [
@@ -574,6 +613,7 @@ function freshState() {
     v: 1, coins: 0, life: 0, all: 0, stars: 0, pstars: 0, cafe: 0,
     st: freshRun(), boosts: [], muted: false, music: true, vibe: true, pops: true, skin: null, mode: "1", tut: 0,
     upg: [], album: {}, albumSeen: 0, ev: null, decor: { harvest: false }, playSecs: 0, sessions: 0, notes: [],
+    fb: { next: 600, n: 0, done: false }, // feedback card: first after 10 min of play, at most twice
     daily: { last: null, streak: 0 }, quests: null,
     stats: { taps: 0, buys: 0, visitors: 0, hires: 0 },
     seen: Date.now(),
@@ -688,9 +728,10 @@ function buyCount(i) {
   if (S.mode === "max") return Math.max(1, maxAffordable(i));
   return +S.mode;
 }
-// stars = 3·sqrt(tips / 10M): 1st star ≈ 1.1M tips, 3 stars at 10M, 9 at 100M
-function totalStarsFor(all) { return Math.floor(STAR_K * Math.sqrt(all / STAR_UNIT)); }
-function tipsForStars(k) { return Math.pow(k / STAR_K, 2) * STAR_UNIT; }
+// stars = 3·(tips / 10M)^0.4: 1st star ≈ 640K tips, 3 at 10M, 7 at 100M, 19 at 1B.
+// The gentle curve keeps later cafés from snowballing (tuned with a multi-café simulation).
+function totalStarsFor(all) { return Math.floor(STAR_K * Math.pow(all / STAR_UNIT, STAR_P)); }
+function tipsForStars(k) { return Math.pow(k / STAR_K, 1 / STAR_P) * STAR_UNIT; }
 function pendingStars() { return Math.max(0, totalStarsFor(S.all) - S.pstars); }
 function starProgress() {
   const next = Math.max(S.pstars, totalStarsFor(S.all)) + 1;
@@ -1012,19 +1053,38 @@ function buildList() {
     cards.push(c);
     list.appendChild(el);
   });
-  const myst = document.createElement("div");
+  const myst = document.createElement("button");
   myst.className = "card mystery"; myst.id = "mystery";
-  myst.textContent = "More recipes appear as your café grows…";
+  myst.addEventListener("click", () => { if (myst.dataset.kind === "next") openSheet("move"); });
   list.appendChild(myst);
   refreshCards();
   renderSill();
 }
 
+// How many recipes this café can offer: 5 at the first café, 2 more at each new street.
+// Never hides a recipe the player already has (older saves keep what they unlocked).
+function recipeCap(cafe = S.cafe) {
+  let hi = -1;
+  S.st.forEach((s, i) => { if (s.lvl > 0) hi = i; });
+  return Math.min(RECIPES.length, Math.max(FIRST_CAFE_RECIPES + RECIPES_PER_MOVE * cafe, cafe === S.cafe ? hi + 1 : 0));
+}
+function nextCafeRecipes() {
+  const now = recipeCap(), next = Math.min(RECIPES.length, Math.max(now, FIRST_CAFE_RECIPES + RECIPES_PER_MOVE * (S.cafe + 1)));
+  return RECIPES.slice(now, next);
+}
+function setMyst(el, kind, html) {
+  el.hidden = false;
+  if (el.dataset.kind === kind && el.dataset.html === html) return; // only touch the DOM when it changes
+  el.dataset.kind = kind; el.dataset.html = html;
+  el.innerHTML = html;
+  el.classList.toggle("next", kind === "next");
+}
 function refreshCards() {
-  const firstLocked = S.st.findIndex((s) => s.lvl === 0);
+  const cap = recipeCap();
+  const firstLocked = S.st.findIndex((s, i) => i < cap && s.lvl === 0);
   cards.forEach((c, i) => {
     const s = S.st[i], r = RECIPES[i];
-    const visible = firstLocked === -1 || i <= firstLocked;
+    const visible = i < cap && (firstLocked === -1 || i <= firstLocked);
     c.el.hidden = !visible;
     if (!visible) return;
     const locked = s.lvl === 0;
@@ -1052,7 +1112,13 @@ function refreshCards() {
     }
     if (locked) { c.pay.textContent = "+" + fmt(r.rev * upgMult("recipe", i) * tipsMult() * boostMult()); c.time.textContent = fmtTime(r.t); }
   });
-  $("mystery").hidden = firstLocked === -1 || firstLocked >= RECIPES.length - 1;
+  // the card under the menu: what's coming next
+  const myst = $("mystery"), upcoming = nextCafeRecipes();
+  if (firstLocked !== -1 && firstLocked < cap - 1) {
+    setMyst(myst, "more", "More recipes appear as your café grows…");
+  } else if (upcoming.length) {
+    setMyst(myst, "next", `<div class="nx-title">🔒 Next café unlocks</div><div class="nx-items">${upcoming.map((r) => `<span>${r.icon} ${r.name}</span>`).join("")}</div><div class="nx-hint">Open a new café to add them to your menu ›</div>`);
+  } else myst.hidden = true;
   updateHint();
 }
 
@@ -1274,18 +1340,37 @@ function relocate() {
   const gain = pendingStars();
   if (gain < 1) return;
   closeSheet();
+  const fresh = nextCafeRecipes();
   S.stars += gain; S.pstars += gain; S.cafe++;
   S.coins = 0; S.life = 0; S.st = freshRun(); S.boosts = []; S.upg = [];
   S.quests = null; ensureQuests();
   const street = STREETS[S.cafe % STREETS.length];
   const cover = document.createElement("div");
   cover.className = "relocating";
-  cover.innerHTML = `<div><div class="bigstar">🌙</div><h2>Moonbean Café<br>${street}</h2><p class="tiny" style="font-size:14px">+${gain} Moon Star${gain > 1 ? "s" : ""} · all tips +${Math.round(S.stars * STAR_BONUS * 100)}%</p></div>`;
+  cover.innerHTML = `<div><div class="bigstar">🌙</div><h2>Moonbean Café<br>${street}</h2>
+    <p class="tiny" style="font-size:15px;margin-top:10px">+${gain} ⭐ · all tips +${Math.round(S.stars * STAR_BONUS * 100)}%</p>
+    ${fresh.length ? `<p class="tiny" style="font-size:15px">New on the menu: ${fresh.map((r) => r.icon + " " + r.name).join(" · ")}</p>` : ""}</div>`;
   document.body.appendChild(cover);
   sfx.chime(); setTimeout(sfx.chime, 400); buzz([20, 60, 20, 60, 20]);
   setTimeout(() => { cover.style.transition = "opacity .5s"; cover.style.opacity = "0"; setTimeout(() => cover.remove(), 500); }, 2200);
   save(); renderHeader(); buildList();
   $("app").scrollTo(0, 0);
+}
+
+/* ================= feedback card =================
+   Shown once after 10 minutes of play (players who stayed that long give the most useful feedback).
+   "Maybe later" asks once more 30 minutes later; then never again. */
+function maybeAskFeedback() {
+  if (S.fb.done || sheetKind || S.tut < 3 || S.playSecs < S.fb.next || document.hidden) return;
+  openSheet("ask");
+}
+function answerFeedback(choice) {
+  if (choice === "later") {
+    S.fb.n++;
+    if (S.fb.n >= 2) S.fb.done = true; else S.fb.next = S.playSecs + 1800;
+  } else S.fb.done = true;
+  save(); closeSheet();
+  if (choice === "go") toast("Thank you! 💛");
 }
 
 /* ================= shop ================= */
@@ -1492,10 +1577,10 @@ function openSheet(kind, extra) {
   setTab(kind);
   const locked = kind === "away" || kind === "pick";
   const veil = document.createElement("div");
-  veil.className = "veil" + (kind === "away" ? " mid" : "");
+  veil.className = "veil" + (kind === "away" || kind === "ask" ? " mid" : "");
   veil.addEventListener("pointerdown", (e) => { if (e.target === veil && !locked) closeSheet(); });
   const sh = document.createElement("div");
-  sh.className = "sheet" + (kind === "away" ? " center" : "");
+  sh.className = "sheet" + (kind === "away" || kind === "ask" ? " center" : "");
   sh.setAttribute("role", "dialog"); sh.setAttribute("aria-modal", "true");
   const head = (title, sub) => `<div class="sheet-head"><div><h3>${title}</h3><p class="sub">${sub}</p></div><button class="iconbtn" data-close aria-label="Close">✕</button></div>`;
 
@@ -1521,16 +1606,43 @@ function openSheet(kind, extra) {
   } else if (kind === "move") {
     const gain = pendingStars(), sp = starProgress();
     const nextStreet = STREETS[(S.cafe + 1) % STREETS.length];
-    sh.innerHTML = head("Open a new café", "Move to a new street and start fresh. Moon Stars stay with you, and every star adds +10% to all tips forever.") +
-      `<div class="starbox num">
-        <div class="starrow"><span>Moon Stars now</span><span>★ ${S.stars} (+${Math.round(S.stars * STAR_BONUS * 100)}%)</span></div>
-        <div class="starrow"><span>Tips earned, all cafés</span><span>${fmt(S.all)}</span></div>
-        <div class="starrow"><span>Stars you'd gain</span><span style="color:var(--star)">+${gain}</span></div>
-        <div class="meter"><i style="width:${sp.frac * 100}%"></i></div>
-        <div class="tiny">Star #${sp.next} at ${fmt(sp.need)} total tips</div>
+    const upcoming = nextCafeRecipes();
+    const boostNow = Math.round(S.stars * STAR_BONUS * 100), boostAfter = Math.round((S.stars + gain) * STAR_BONUS * 100);
+    sh.innerHTML = head(`Move to ${nextStreet}`, "Start a bigger café on a new street.") +
+      `<div class="mv-hero">
+        ${gain >= 1
+          ? `<div class="mv-big num">+${gain} ⭐</div><div class="mv-sub">Every star makes <b>all tips 10% bigger, forever</b>.<br>Your tips: <b class="num">+${boostNow}%</b> → <b class="num">+${boostAfter}%</b></div>`
+          : `<div class="mv-big num" style="opacity:.5">⭐</div><div class="mv-sub">Keep earning tips to collect your next star.</div>
+             <div class="meter" style="margin-top:10px"><i style="width:${sp.frac * 100}%"></i></div><div class="tiny num" style="margin-top:4px">${Math.floor(sp.frac * 100)}% of the way</div>`}
       </div>
-      <p class="tiny" style="margin:0 0 12px">You'll lose your tips, recipe levels and cats. Daily streak, quests and your café theme carry over.</p>
-      <button class="btn ${confirmMove ? "danger" : ""}" id="moveBtn" ${gain < 1 ? "disabled" : ""}>${gain < 1 ? `Earn ${fmt(Math.max(0, tipsForStars(S.pstars + 1) - S.all))} more tips to move` : confirmMove ? `Yes, move to ${nextStreet}` : `Move to ${nextStreet} (+${gain} ★)`}</button>`;
+      ${upcoming.length ? `<div class="mv-new"><div class="mv-label">New on the menu</div><div class="mv-items">${upcoming.map((r) => `<span>${r.icon} ${r.name}</span>`).join("")}</div></div>` : ""}
+      <div class="mv-cols">
+        <div><div class="mv-label">You keep</div><ul><li>⭐ Moon Stars</li><li>🐾 Adopted cats</li><li>🎨 Your theme</li></ul></div>
+        <div><div class="mv-label">Starts over</div><ul><li>🪙 Tips</li><li>☕ Recipe levels</li><li>🐈 Hired cats &amp; shop</li></ul></div>
+      </div>
+      <button class="btn ${confirmMove ? "danger" : ""}" id="moveBtn" ${gain < 1 ? "disabled" : ""}>${gain < 1 ? "Earn a star to move" : confirmMove ? "Tap again to move" : `Move to ${nextStreet}`}</button>`;
+  } else if (kind === "ask") {
+    // one tap to answer; the comment link only comes after, and is optional
+    if (!extra || !extra.mood) {
+      sh.innerHTML = `<div class="ask-cat">${catSit("biscuit", 76)}</div>
+        <h3>Loving the café?</h3>
+        <div class="faces" role="group" aria-label="How do you like it?">
+          <button data-face="love" aria-label="Love it">😍</button>
+          <button data-face="ok" aria-label="It's okay">🙂</button>
+          <button data-face="meh" aria-label="Not really">😕</button>
+        </div>
+        <button class="tiny" id="fbLater" style="padding:8px;margin-top:6px">Not now</button>`;
+    } else {
+      const line = extra.mood === "love" ? "Yay! Tell me your favorite part?" : extra.mood === "ok" ? "What would make it better?" : "What felt off? I'll fix it.";
+      sh.innerHTML = `<div class="ask-cat">${catSit("mochi", 76)}</div>
+        <h3>Thanks! 🎁</h3>
+        <div class="away-amt num" style="font-size:28px"><span class="coin"></span>+${fmt(extra.gift)}</div>
+        <p class="sub" style="margin:4px 0 14px">${line}</p>
+        <div class="stack">
+          <a class="btn" id="fbGo" href="${FEEDBACK_URL}" target="_blank" rel="noopener" style="display:grid;place-items:center;text-decoration:none">Tell me why ✍️</a>
+          <button class="btn alt" id="fbDone">Done</button>
+        </div>`;
+    }
   } else if (kind === "away") {
     const { secs, amt } = extra;
     sh.innerHTML = `<div style="display:flex;justify-content:center">${catSit("mochi", 84)}</div><h3>Welcome back!</h3><p class="sub">Your cats kept brewing for ${fmtTime(secs)}${secs >= offlineCap() - 1 ? ` (the most they'll work alone is ${fmtTime(offlineCap())})` : ""}.</p>
@@ -1572,6 +1684,9 @@ function openSheet(kind, extra) {
       <button class="btn" id="ptSend" style="margin-top:8px">Send feedback</button>
       ${S.notes.length ? `<p class="tiny" style="margin-top:6px">You've sent ${S.notes.length} note${S.notes.length > 1 ? "s" : ""}. Thank you!</p>` : ""}` : ""}
       ${pt.owner ? `<h4>Your playtest</h4><button class="btn alt" id="ptResults">See what players shared</button>` : ""}
+      ${pt.db && pt.uid ? "" : `<h4>Feedback</h4>
+      <p class="tiny" style="margin:-2px 0 10px">Moonbean Café is new and made by one person. Comments on the game page help shape what comes next.</p>
+      <a class="btn alt" href="${FEEDBACK_URL}" target="_blank" rel="noopener" style="display:grid;place-items:center;text-decoration:none">Leave a comment on itch.io</a>`}
       <h4>Progress</h4>
       <button class="btn alt" id="resetOpen">Reset progress…</button>
       <p class="tiny" style="margin-top:12px">Moonbean Café · progress saves on this device · <a href="https://mmmbeh123-design.github.io/moonbean-cafe/privacy.html" target="_blank" rel="noopener" style="color:var(--sky)">Privacy policy</a></p>`;
@@ -1623,6 +1738,20 @@ function openSheet(kind, extra) {
   const on = (sel, fn) => { const el = sh.querySelector(sel); if (el) el.addEventListener("click", fn); };
   on("#claimDaily", claimDaily);
   on("#ptSend", sendFeedback);
+  on("#fbLater", () => answerFeedback("later"));
+  on("#fbDone", () => answerFeedback("done"));
+  sh.querySelectorAll("[data-face]").forEach((b) => b.addEventListener("click", () => {
+    const gift = rewardCoins(3);
+    earn(gift); S.fb.done = true; S.fb.mood = b.dataset.face; save();
+    sfx.chime(); buzz([8, 30, 8]);
+    const p = centerOf(b); sparks(p.x, p.y, 14);
+    openSheet("ask", { mood: b.dataset.face, gift });
+  }));
+  on("#fbGo", (e) => {
+    // on the Claude link, the in-game feedback form reaches the maker directly
+    if (pt.db && pt.uid) { e.preventDefault(); ptMood = S.fb.mood || null; openSheet("settings"); return; }
+    answerFeedback("go");
+  });
   on("#ptResults", () => openSheet("results"));
   on("#moveBtn", () => { if (!confirmMove) { confirmMove = true; openSheet("move"); confirmMove = true; } else relocate(); });
   on("#resetOpen", () => openSheet("reset"));
@@ -1829,6 +1958,7 @@ function frame(t) {
     refreshCards(); drawBoosts(); drawBadges(); drawEvent(true);
     syncPlaytest(false).catch(() => {});
     if (!visitorEl && Date.now() > nextVisitor) spawnVisitor();
+    maybeAskFeedback();
   }
   if (saveT > 5) { saveT = 0; save(); }
   requestAnimationFrame(frame);
